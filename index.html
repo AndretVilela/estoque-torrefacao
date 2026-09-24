@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Estoque da torrefação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --fundo:#ECEFE8; --papel:#F8F9F5; --tinta:#1E2620; --suave:#5E6A5F; --linha:#CBD2C4;
-  --verde:#7C8F55; --ocre:#B08A45; --torra:#4A2C1D; --alerta:#B3412E; --ok:#3E6B3A;
+  --fundo:#ECEFE8; --papel:#F8F9F5; --zona:#E2E7DC; --tinta:#1E2620; --suave:#5E6A5F; --linha:#CBD2C4;
+  --verde:#7C8F55; --ocre:#B08A45; --torra:#4A2C1D; --torrado:#8A5A3B; --alerta:#B3412E; --ok:#3E6B3A;
   --num:'Barlow Condensed','Arial Narrow',sans-serif;
 }
 *{box-sizing:border-box}
@@ -26,63 +26,80 @@ button,input,select,textarea{font:inherit;color:inherit}
 #btnGoogle{display:flex;justify-content:center;min-height:44px}
 #msgLogin{color:var(--alerta);margin-top:16px;min-height:1.5em}
 
-/* App */
-header{background:var(--torra);color:#F3EDE6;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+/* Estrutura */
+header{background:var(--torra);color:#F3EDE6;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 header h1{font-family:var(--num);font-weight:600;font-size:24px;margin:0}
 .usuario{display:flex;align-items:center;gap:12px;font-size:14px}
 .btnLinha{background:transparent;border:1px solid currentColor;border-radius:6px;padding:4px 12px;cursor:pointer}
-main{max-width:1200px;margin:0 auto;padding:24px}
-h2{font-family:var(--num);font-weight:600;font-size:22px;margin:32px 0 12px}
-h2:first-child{margin-top:0}
+main{max-width:1280px;margin:0 auto;padding:28px}
+h2{font-family:var(--num);font-weight:600;font-size:22px;margin:0 0 12px}
+.secao{margin-top:36px}
+.cartao{background:var(--papel);border:1px solid var(--linha);border-radius:14px}
 
-/* Silos */
-.silos{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.silo{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:16px;text-align:center}
-.silo svg{width:100%;max-width:130px;height:auto}
-.silo .nome{font-weight:600;margin-top:6px}
-.silo .kg{font-family:var(--num);font-size:26px;font-weight:600;line-height:1.1}
-.silo .detalhe{font-size:13px;color:var(--suave)}
-.locais{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:16px}
-.local{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:16px}
-.local .topo{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--linha);padding-bottom:8px;margin-bottom:8px}
-.local .topo strong{font-size:17px}
-.local .topo span{font-family:var(--num);font-size:22px;font-weight:600}
-.linhaProd{display:flex;justify-content:space-between;font-size:14px;padding:2px 0}
-.vazio{color:var(--suave);font-size:14px}
+/* Indicadores */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{padding:18px 20px;border-left:6px solid var(--verde)}
+.kpi.torrado{border-left-color:var(--torrado)}
+.kpi .rotulo{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+.kpi .valor{font-family:var(--num);font-weight:700;font-size:44px;line-height:1.05;margin-top:6px}
+.kpi .valor small{font-size:22px;font-weight:600;margin-left:4px}
+.kpi .sub{color:var(--suave);font-size:15px}
 
-/* Formulário */
-.grade{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:24px;align-items:start}
-form{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:20px;display:grid;gap:14px}
-.tipos{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--linha);border-radius:8px;overflow:hidden}
-.tipos label{text-align:center;padding:10px 4px;cursor:pointer;font-weight:500;font-size:14px;border-right:1px solid var(--linha)}
+/* Planta */
+.planta{margin-top:16px;padding:12px;overflow-x:auto}
+.planta svg{display:block;width:100%;min-width:980px;height:auto}
+.legenda{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--suave);padding:4px 12px 8px}
+.legenda i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* Tabelas */
+.duas{display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:start}
+.tabela{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--suave);padding:10px 14px;border-bottom:1px solid var(--linha);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--linha);white-space:nowrap;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th.num,td.num{text-align:right}
+td .sc{font-family:var(--num);font-size:19px;font-weight:600;display:block;line-height:1.2}
+td .kg{font-size:12px;color:var(--suave)}
+tr.total td{background:var(--zona);font-weight:600}
+tr.riscado td{color:var(--suave);text-decoration:line-through}
+.vazio{color:var(--suave);font-size:14px;padding:16px}
+.etiqueta{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;font-weight:600}
+.ENTRADA{background:#DDE6CF;color:#34431F}.SAIDA{background:#F1D9CC;color:#6E2A14}.ENVIO{background:#D6E3E0;color:#1F4A42}
+.TRANSFERENCIA{background:#E3E0D5;color:#403B2C}.AJUSTE{background:#F2E6C9;color:#5E4513}.ESTORNO{background:#EBD3D0;color:#6A1F18}
+.btnMini{background:none;border:1px solid var(--linha);border-radius:6px;padding:2px 10px;cursor:pointer;font-size:13px}
+
+/* Operações */
+.abas{display:flex;gap:4px;border-bottom:1px solid var(--linha);flex-wrap:wrap}
+.aba{background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;cursor:pointer;font-weight:600;color:var(--suave)}
+.aba[aria-selected=true]{color:var(--torra);border-bottom-color:var(--torra)}
+.painel{padding:22px}
+.form{display:grid;gap:14px;max-width:720px}
+.linha{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.campo{display:grid;gap:4px}
+.campo span{font-size:13px;font-weight:500;color:var(--suave)}
+.campo input,.campo select,.campo textarea{background:#fff;border:1px solid var(--linha);border-radius:6px;padding:9px 10px;min-height:42px;width:100%}
+.dica{font-size:13px;color:var(--suave)}
+.destino{display:grid;grid-template-columns:2fr 1fr 90px 36px;gap:10px;align-items:end}
+.destino .conv{font-family:var(--num);font-size:18px;padding-bottom:8px}
+.btnX{height:42px;border:1px solid var(--linha);background:#fff;border-radius:6px;cursor:pointer}
+.totalEnvio{font-weight:600}
+.totalEnvio.erro{color:var(--alerta)}
+.tipos{display:flex;border:1px solid var(--linha);border-radius:8px;overflow:hidden;width:fit-content}
+.tipos label{padding:8px 16px;cursor:pointer;font-weight:500;font-size:14px;border-right:1px solid var(--linha)}
 .tipos label:last-child{border-right:0}
 .tipos input{position:absolute;opacity:0}
 .tipos label:has(input:checked){background:var(--torra);color:#F3EDE6}
 .tipos label:has(input:focus-visible){outline:3px solid var(--ocre);outline-offset:-3px}
-.campo{display:grid;gap:4px}
-.campo span{font-size:13px;font-weight:500;color:var(--suave)}
-.campo input,.campo select,.campo textarea{background:#fff;border:1px solid var(--linha);border-radius:6px;padding:9px 10px;min-height:42px}
-.dupla{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .check{display:flex;gap:8px;align-items:center;font-size:14px}
-.btnPrincipal{background:var(--torra);color:#F3EDE6;border:0;border-radius:8px;padding:12px;font-weight:600;font-size:17px;cursor:pointer;min-height:48px}
+.btnPrincipal{background:var(--torra);color:#F3EDE6;border:0;border-radius:8px;padding:12px 24px;font-weight:600;font-size:17px;cursor:pointer;min-height:48px;justify-self:start}
 .btnPrincipal:disabled{opacity:.55;cursor:wait}
+.btnSec{background:none;border:1px dashed var(--suave);border-radius:6px;padding:8px 14px;cursor:pointer;justify-self:start}
 
-/* Tabela */
-.tabela{background:var(--papel);border:1px solid var(--linha);border-radius:12px;overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;font-weight:500;color:var(--suave);padding:10px 12px;border-bottom:1px solid var(--linha);white-space:nowrap}
-td{padding:9px 12px;border-bottom:1px solid var(--linha);white-space:nowrap}
-tr:last-child td{border-bottom:0}
-td.num{text-align:right;font-family:var(--num);font-size:16px}
-tr.riscado td{color:var(--suave);text-decoration:line-through}
-.etiqueta{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;font-weight:600}
-.ENTRADA{background:#DDE6CF;color:#34431F}.SAIDA{background:#F1D9CC;color:#6E2A14}
-.TRANSFERENCIA{background:#E3E0D5;color:#403B2C}.AJUSTE{background:#F2E6C9;color:#5E4513}.ESTORNO{background:#EBD3D0;color:#6A1F18}
-.btnEstorno{background:none;border:1px solid var(--linha);border-radius:6px;padding:2px 10px;cursor:pointer;font-size:13px}
-
-#aviso{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 20px;border-radius:8px;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+#aviso{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 20px;border-radius:8px;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:10}
 #aviso.erro{background:var(--alerta)}
-@media (max-width:860px){.silos{grid-template-columns:repeat(2,1fr)}.grade{grid-template-columns:1fr}main{padding:16px}}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.duas{grid-template-columns:1fr}main{padding:16px}}
+@media (max-width:560px){.kpis{grid-template-columns:1fr}.destino{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -103,69 +120,150 @@ tr.riscado td{color:var(--suave);text-decoration:line-through}
     <div class="usuario"><span id="nomeUsuario"></span><button class="btnLinha" onclick="sair()">Sair</button></div>
   </header>
   <main>
-    <h2>Silos</h2>
-    <div class="silos" id="silos"></div>
-    <div class="locais" id="locais"></div>
+    <div class="kpis" id="kpis"></div>
 
-    <div class="grade">
+    <div class="cartao planta">
+      <div id="planta"></div>
+      <div class="legenda">
+        <span><i style="background:var(--verde)"></i>Escolhas</span>
+        <span><i style="background:var(--ocre)"></i>Grãos</span>
+        <span><i style="background:var(--torrado)"></i>Café torrado</span>
+        <span>Café verde sempre em sacas de 60 kg</span>
+      </div>
+    </div>
+
+    <div class="secao duas">
       <div>
-        <h2>Registrar movimento</h2>
-        <form id="form" novalidate>
-          <div class="tipos" role="radiogroup" aria-label="Tipo de movimento">
-            <label><input type="radio" name="tipo" value="ENTRADA" checked>Entrada</label>
-            <label><input type="radio" name="tipo" value="TRANSFERENCIA">Transferir</label>
-            <label><input type="radio" name="tipo" value="SAIDA">Saída</label>
-            <label><input type="radio" name="tipo" value="AJUSTE">Ajuste</label>
-          </div>
-          <div class="dupla">
-            <label class="campo"><span>Produto</span><select id="produto" required></select></label>
-            <label class="campo"><span>Proprietário</span><select id="proprietario" required></select></label>
-          </div>
-          <label class="campo oculto" id="cxSentido"><span>Sentido do ajuste</span>
-            <select id="sentido"><option value="mais">Acréscimo (sobra no inventário)</option><option value="menos">Baixa (falta no inventário)</option></select></label>
-          <label class="campo" id="cxOrigem"><span>De onde sai</span><select id="origem"></select></label>
-          <label class="campo" id="cxLote"><span>Lote</span><select id="lote"></select></label>
-          <label class="check" id="cxGerarLote"><input type="checkbox" id="gerarLote" checked>Gerar código de lote na entrada</label>
-          <label class="campo" id="cxDestino"><span>Para onde vai</span><select id="destino"></select></label>
-          <div class="dupla">
-            <label class="campo"><span>Peso (kg)</span><input id="kg" inputmode="decimal" required></label>
-            <label class="campo"><span>Sacas / bags</span><input id="unidades" inputmode="numeric"></label>
-          </div>
-          <label class="campo" id="cxDocumento"><span>Nota fiscal / documento</span><input id="documento"></label>
-          <label class="campo"><span>Observação</span><textarea id="observacao" rows="2"></textarea></label>
-          <button class="btnPrincipal" id="btnSalvar" type="submit">Registrar movimento</button>
-        </form>
+        <h2>Café verde por produto</h2>
+        <div class="cartao tabela"><table>
+          <thead><tr><th>Produto</th><th class="num">Armazém Vilela</th><th class="num">Torrefação</th><th class="num">Total</th></tr></thead>
+          <tbody id="tabProdutos"></tbody>
+        </table></div>
       </div>
       <div>
-        <h2>Últimos movimentos</h2>
-        <div class="tabela"><table>
-          <thead><tr><th>Código</th><th>Data</th><th>Tipo</th><th>Produto</th><th>Lote</th><th>De</th><th>Para</th><th>kg</th><th>Usuário</th><th></th></tr></thead>
-          <tbody id="movs"></tbody>
+        <h2>Contratos no armazém</h2>
+        <div class="cartao tabela"><table>
+          <thead><tr><th>Contrato</th><th>Produto</th><th class="num">Saldo</th><th></th></tr></thead>
+          <tbody id="tabContratos"></tbody>
         </table></div>
       </div>
     </div>
+
+    <section class="secao" id="secOperacoes">
+      <h2>Registrar</h2>
+      <div class="cartao">
+        <div class="abas" role="tablist">
+          <button class="aba" role="tab" aria-selected="true" data-painel="pEntrada">Entrada no armazém</button>
+          <button class="aba" role="tab" aria-selected="false" data-painel="pEnvio">Envio à torrefação</button>
+          <button class="aba" role="tab" aria-selected="false" data-painel="pOutros">Outros movimentos</button>
+        </div>
+
+        <!-- Entrada no armazém -->
+        <div class="painel" id="pEntrada" role="tabpanel">
+          <form class="form" id="fEntrada" novalidate>
+            <div class="linha">
+              <label class="campo"><span>Contrato</span><input id="eContrato" placeholder="CVI-0000" autocomplete="off"></label>
+              <label class="campo"><span>Produto</span><select id="eProduto"></select></label>
+              <label class="campo"><span>Proprietário</span><select id="eProprietario"></select></label>
+            </div>
+            <div class="linha">
+              <label class="campo"><span>Sacas de 60 kg</span><input id="eSacas" inputmode="decimal"></label>
+              <label class="campo"><span>Peso (kg)</span><input id="eKg" inputmode="decimal"></label>
+              <label class="campo"><span>Nota fiscal</span><input id="eDoc"></label>
+            </div>
+            <div class="dica">Digite sacas ou kg: o outro campo é calculado. O sistema grava o peso em kg.</div>
+            <label class="campo"><span>Observação</span><textarea id="eObs" rows="2"></textarea></label>
+            <button class="btnPrincipal" type="submit">Registrar entrada</button>
+          </form>
+        </div>
+
+        <!-- Envio à torrefação -->
+        <div class="painel oculto" id="pEnvio" role="tabpanel">
+          <form class="form" id="fEnvio" novalidate>
+            <label class="campo"><span>Contrato de origem</span><select id="vContrato"></select></label>
+            <div class="dica" id="vSaldo"></div>
+            <div id="vDestinos" style="display:grid;gap:10px"></div>
+            <button class="btnSec" type="button" id="vMais">+ Adicionar destino</button>
+            <div class="totalEnvio" id="vTotal"></div>
+            <label class="campo"><span>Observação</span><textarea id="vObs" rows="2"></textarea></label>
+            <button class="btnPrincipal" type="submit">Registrar envio e gerar lote</button>
+          </form>
+        </div>
+
+        <!-- Outros movimentos -->
+        <div class="painel oculto" id="pOutros" role="tabpanel">
+          <form class="form" id="fOutros" novalidate>
+            <div class="tipos" role="radiogroup" aria-label="Tipo de movimento">
+              <label><input type="radio" name="tipo" value="TRANSFERENCIA" checked>Transferir</label>
+              <label><input type="radio" name="tipo" value="ENTRADA">Entrada direta</label>
+              <label><input type="radio" name="tipo" value="SAIDA">Saída</label>
+              <label id="rAjuste"><input type="radio" name="tipo" value="AJUSTE">Ajuste</label>
+            </div>
+            <div class="linha">
+              <label class="campo"><span>Produto</span><select id="oProduto"></select></label>
+              <label class="campo"><span>Proprietário</span><select id="oProprietario"></select></label>
+              <label class="campo oculto" id="cxSentido"><span>Sentido do ajuste</span>
+                <select id="oSentido"><option value="mais">Acréscimo</option><option value="menos">Baixa</option></select></label>
+            </div>
+            <div class="linha">
+              <label class="campo" id="cxOrigem"><span>De onde sai</span><select id="oOrigem"></select></label>
+              <label class="campo" id="cxLote"><span>Lote / contrato</span><select id="oLote"></select></label>
+              <label class="campo" id="cxDestino"><span>Para onde vai</span><select id="oDestino"></select></label>
+            </div>
+            <label class="check oculto" id="cxGerarLote"><input type="checkbox" id="oGerarLote" checked>Gerar código de lote</label>
+            <div class="linha">
+              <label class="campo"><span>Peso (kg)</span><input id="oKg" inputmode="decimal"></label>
+              <label class="campo"><span>Em sacas de 60 kg</span><input id="oSacas" inputmode="decimal"></label>
+              <label class="campo"><span>Documento</span><input id="oDoc"></label>
+            </div>
+            <label class="campo"><span>Observação</span><textarea id="oObs" rows="2"></textarea></label>
+            <button class="btnPrincipal" type="submit">Registrar movimento</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao">
+      <h2>Últimos movimentos</h2>
+      <div class="cartao tabela"><table>
+        <thead><tr><th>Código</th><th>Data</th><th>Tipo</th><th>Produto</th><th>Lote</th><th>De</th><th>Para</th><th class="num">Sacas</th><th class="num">kg</th><th>Usuário</th><th></th></tr></thead>
+        <tbody id="movs"></tbody>
+      </table></div>
+    </section>
   </main>
 </div>
 
 <div id="aviso" class="oculto" role="status"></div>
 
 <script>
-/* ======= PREENCHER ======= */
+/* ======= CONFIGURAÇÃO ======= */
 const CONFIG = {
   CLIENT_ID: '756025537677-hvhfe6a9bpiubh4php2mge57tvre1qu7.apps.googleusercontent.com',
   API_URL: 'https://script.google.com/macros/s/AKfycbyVqAx08BFfcK9a5dTzaPi4T5CYB7Gzo47t9omYrzPLU_cnkQE0czh-wwTZl-VfZzV3xg/exec'
 };
-/* ========================= */
+const KG_SACA = 60;
+const KG_TORRADO_POR_TORRA = 205; // aproximado, só para o desenho do repouso
+/* ============================ */
 
 let token = sessionStorage.getItem('tk');
 let cad = { produtos: [], locais: [], proprietarios: [] };
 let saldos = [];
 let perfil = 'CONSULTA';
 const $ = id => document.getElementById(id);
-const fmt = n => Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const nomeLocal = c => c === 'EXT' ? 'Externo' : (cad.locais.find(l => l.codigo === c)?.nome || c || '');
-const tipoAtual = () => document.querySelector('input[name=tipo]:checked').value;
+const n1 = v => Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+const n0 = v => Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+const sc = kg => n1(kg / KG_SACA);
+const num = v => { const s = String(v ?? '').trim(); if (!s) return NaN; return Number(s.includes(',') ? s.replace(/\./g, '').replace(',', '.') : s); };
+const campoNum = v => String(Math.round(v * 100) / 100).replace('.', ',');
+const local = c => cad.locais.find(l => l.codigo === c);
+const nomeLocal = c => c === 'EXT' ? 'Externo' : (local(c)?.nome || c || '');
+const prodInfo = s => cad.produtos.find(p => p.sigla === s);
+const corProd = s => prodInfo(s)?.tipo_silo === 'GRAO' ? 'var(--ocre)' : 'var(--verde)';
+const tiposVerde = ['ARMAZEM', 'SILO', 'PALLET'];
+const soma = arr => arr.reduce((a, s) => a + s.kg, 0);
+const doLocal = c => saldos.filter(s => s.local === c && s.kg > 0);
+const doTipo = tipos => saldos.filter(s => s.kg > 0 && tipos.includes(local(s.local)?.tipo));
 
 function tokenValido(t) {
   try { return JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp * 1000 > Date.now() + 60000; }
@@ -180,10 +278,11 @@ async function api(acao, dados) {
   if (!j.ok) throw new Error(j.erro);
   return j.dados;
 }
+const erroReal = e => !['SESSAO', 'NAO_AUTORIZADO'].includes(e.message);
 
 function aviso(msg, erro) {
   const a = $('aviso'); a.textContent = msg; a.className = erro ? 'erro' : '';
-  clearTimeout(a._t); a._t = setTimeout(() => a.classList.add('oculto'), erro ? 7000 : 4000);
+  clearTimeout(a._t); a._t = setTimeout(() => a.classList.add('oculto'), erro ? 8000 : 5000);
 }
 
 /* ---------- Login ---------- */
@@ -199,17 +298,11 @@ async function entrar() {
     const u = await api('me');
     perfil = u.perfil;
     $('nomeUsuario').textContent = u.nome + ' (' + u.perfil.toLowerCase() + ')';
-    aplicarPerfil();
     $('telaLogin').classList.add('oculto'); $('telaApp').classList.remove('oculto');
-    await carregarTudo();
-  } catch (e) { if (!['SESSAO', 'NAO_AUTORIZADO'].includes(e.message)) $('msgLogin').textContent = e.message; }
-}
-
-function aplicarPerfil() {
-  const podeLancar = perfil === 'ADMIN' || perfil === 'OPERADOR';
-  $('form').closest('.grade > div').classList.toggle('oculto', !podeLancar);
-  document.querySelector('input[value=AJUSTE]').closest('label').classList.toggle('oculto', perfil !== 'ADMIN');
-  document.querySelector('.tipos').style.gridTemplateColumns = perfil === 'ADMIN' ? '' : 'repeat(3,1fr)';
+    $('secOperacoes').classList.toggle('oculto', perfil === 'CONSULTA');
+    $('rAjuste').classList.toggle('oculto', perfil !== 'ADMIN');
+    await carregar();
+  } catch (e) { if (erroReal(e)) $('msgLogin').textContent = e.message; }
 }
 
 function sair(msg) {
@@ -219,120 +312,323 @@ function sair(msg) {
   $('msgLogin').textContent = msg || '';
 }
 
-/* ---------- Dados ---------- */
-async function carregarTudo() {
-  const [c, s, m] = await Promise.all([api('cadastros'), api('saldos'), api('movimentos', { limite: 40 })]);
-  cad = c; saldos = s;
-  preencherSelects(); desenharEstoque(); desenharMovimentos(m); ajustarForm();
+/* ---------- Carga ---------- */
+async function carregar() {
+  const d = await api('painel', { limite: 40 });
+  cad = d.cadastros; saldos = d.saldos;
+  preencherSelects();
+  desenharKpis(); $('planta').innerHTML = planta(); desenharProdutos(); desenharContratos();
+  desenharMovimentos(d.movimentos);
+  montarEnvio(); ajustarOutros();
 }
 
 function preencherSelects() {
-  $('produto').innerHTML = cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
-  $('proprietario').innerHTML = cad.proprietarios.map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join('');
-  const opt = cad.locais.map(l => `<option value="${esc(l.codigo)}">${esc(l.nome)}</option>`).join('');
-  $('origem').innerHTML = opt; $('destino').innerHTML = opt;
+  const prods = cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
+  const props = cad.proprietarios.map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join('');
+  ['eProduto', 'oProduto'].forEach(id => { const v = $(id).value; $(id).innerHTML = prods; if (v) $(id).value = v; });
+  ['eProprietario', 'oProprietario'].forEach(id => { const v = $(id).value; $(id).innerHTML = props; if (v) $(id).value = v; });
 }
 
-/* ---------- Croqui dos silos ---------- */
-function desenharSilo(loc, itens) {
-  const total = itens.reduce((a, s) => a + s.kg, 0);
-  const prod = cad.produtos.find(p => p.sigla === itens[0]?.produto);
-  const cap = prod ? (prod.tipo_silo === 'ESCOLHA' ? loc.cap_escolha_kg : loc.cap_grao_kg) : loc.cap_escolha_kg;
-  const pct = cap ? Math.min(total / cap, 1) : 0;
-  const topo = 8 + (1 - pct) * 162;
-  const cor = prod?.tipo_silo === 'GRAO' ? 'var(--ocre)' : 'var(--verde)';
-  const lotes = [...new Set(itens.map(s => s.lote).filter(Boolean))];
-  const id = 'clip' + loc.codigo;
-  return `<div class="silo">
-    <svg viewBox="0 0 120 180" role="img" aria-label="${esc(loc.nome)}: ${Math.round(pct * 100)}% ocupado">
-      <defs><clipPath id="${id}"><path d="M14 8H106V120L66 170H54L14 120Z"/></clipPath></defs>
-      <rect x="0" y="${topo}" width="120" height="${180 - topo}" fill="${cor}" clip-path="url(#${id})"/>
-      <path d="M14 8H106V120L66 170H54L14 120Z" fill="none" stroke="var(--torra)" stroke-width="3"/>
-      <text x="60" y="${Math.max(topo - 6, 26)}" text-anchor="middle" font-family="Barlow Condensed" font-size="18" fill="var(--tinta)">${Math.round(pct * 100)}%</text>
-    </svg>
-    <div class="nome">${esc(loc.nome)}</div>
-    <div class="kg">${fmt(total)} kg</div>
-    <div class="detalhe">${prod ? esc(prod.nome) + ' de ' + fmt(cap) + ' kg' : 'Vazio'}</div>
-    <div class="detalhe">${lotes.length ? lotes.length + (lotes.length > 1 ? ' lotes misturados' : ' lote') : ''}</div>
-  </div>`;
+/* ---------- Indicadores ---------- */
+function desenharKpis() {
+  const verde = soma(doTipo(tiposVerde));
+  const arm = soma(doTipo(['ARMAZEM']));
+  const torref = soma(doTipo(['SILO', 'PALLET']));
+  const torrado = soma(doTipo(['REPOUSO']));
+  const contratos = new Set(doTipo(['ARMAZEM']).map(s => s.lote)).size;
+  const kpi = (rot, valor, un, sub, cls = '') => `<div class="cartao kpi ${cls}"><div class="rotulo">${rot}</div><div class="valor">${valor}<small>${un}</small></div><div class="sub">${sub}</div></div>`;
+  $('kpis').innerHTML =
+    kpi('Café verde total', sc(verde), 'sc', n0(verde) + ' kg') +
+    kpi('Armazém Vilela', sc(arm), 'sc', n0(arm) + ' kg em ' + contratos + (contratos === 1 ? ' contrato' : ' contratos')) +
+    kpi('Na torrefação', sc(torref), 'sc', n0(torref) + ' kg em silos e pallets') +
+    kpi('Torrado em repouso', n0(torrado), 'kg', 'aguardando moagem', 'torrado');
 }
 
-function desenharEstoque() {
-  $('silos').innerHTML = cad.locais.filter(l => l.tipo === 'SILO')
-    .map(l => desenharSilo(l, saldos.filter(s => s.local === l.codigo && s.kg > 0))).join('');
-  $('locais').innerHTML = cad.locais.filter(l => l.tipo !== 'SILO').map(l => {
-    const itens = saldos.filter(s => s.local === l.codigo && s.kg > 0);
-    const grupos = {};
-    itens.forEach(s => { const k = s.produto + (s.proprietario !== 'CHP' ? ' (' + s.proprietario + ')' : ''); grupos[k] = (grupos[k] || 0) + s.kg; });
-    const total = itens.reduce((a, s) => a + s.kg, 0);
-    const linhas = Object.entries(grupos).map(([k, v]) => `<div class="linhaProd"><span>${esc(k)}</span><span>${fmt(v)} kg</span></div>`).join('');
-    return `<div class="local"><div class="topo"><strong>${esc(l.nome)}</strong><span>${fmt(total)} kg</span></div>${linhas || '<div class="vazio">Sem estoque</div>'}</div>`;
+/* ---------- Croqui da planta ---------- */
+function planta() {
+  const T = (x, y, txt, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || 'middle'}" font-family="${o.f || 'Barlow, Arial, sans-serif'}" font-size="${o.s || 13}" font-weight="${o.w || 400}" fill="${o.c || 'var(--tinta)'}">${esc(txt)}</text>`;
+  let svg = `<svg viewBox="0 0 1200 380" role="img" aria-label="Croqui do estoque: armazém, silos, pallets, torrador e repouso">
+  <defs><marker id="seta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="var(--suave)" stroke-width="1.6"/></marker></defs>
+  <rect x="10" y="10" width="250" height="360" rx="14" fill="var(--zona)"/>
+  <rect x="280" y="10" width="910" height="360" rx="14" fill="var(--zona)"/>
+  ${T(135, 36, 'ARMAZÉM VILELA', { w: 600, s: 12, c: 'var(--suave)' })}
+  ${T(735, 36, 'TORREFAÇÃO', { w: 600, s: 12, c: 'var(--suave)' })}`;
+
+  // Armazém
+  const arm = doLocal('VIL'), kgArm = soma(arm);
+  svg += `<polygon points="40,125 135,66 230,125" fill="var(--torra)"/>
+  <rect x="50" y="125" width="170" height="110" fill="var(--papel)" stroke="var(--torra)" stroke-width="2"/>`;
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
+    const cheio = kgArm > 0 && (r * 5 + c) < Math.max(1, Math.ceil(Math.min(kgArm / 60 / 40, 15)));
+    svg += `<rect x="${62 + c * 30}" y="${205 - r * 22}" width="26" height="18" rx="7" fill="${cheio ? 'var(--verde)' : 'var(--linha)'}"/>`;
+  }
+  const nContr = new Set(arm.map(s => s.lote)).size;
+  svg += T(135, 270, sc(kgArm) + ' sc', { f: 'Barlow Condensed, Arial Narrow, sans-serif', s: 30, w: 700 }) +
+    T(135, 292, n0(kgArm) + ' kg', { c: 'var(--suave)' }) +
+    T(135, 311, nContr + (nContr === 1 ? ' contrato' : ' contratos'), { c: 'var(--suave)', s: 12 });
+
+  // Silos de café verde
+  cad.locais.filter(l => l.tipo === 'SILO').forEach((l, i) => {
+    const cx = 340 + i * 88, itens = doLocal(l.codigo), kg = soma(itens), p = prodInfo(itens[0]?.produto);
+    const cap = p ? (p.tipo_silo === 'GRAO' ? l.cap_grao_kg : l.cap_escolha_kg) : l.cap_escolha_kg;
+    const pct = cap ? Math.min(kg / cap, 1) : 0, topo = 70 + (1 - pct) * 175;
+    const forma = `M${cx - 32} 70H${cx + 32}V210L${cx + 8} 245H${cx - 8}L${cx - 32} 210Z`;
+    const lotes = new Set(itens.map(s => s.lote)).size;
+    svg += `<clipPath id="c${l.codigo}"><path d="${forma}"/></clipPath>
+      <rect x="${cx - 40}" y="${topo}" width="80" height="${250 - topo}" fill="${p ? corProd(p.sigla) : 'none'}" clip-path="url(#c${l.codigo})"/>
+      <path d="${forma}" fill="none" stroke="var(--torra)" stroke-width="2.5"/>
+      ${T(cx, 140, Math.round(pct * 100) + '%', { f: 'Barlow Condensed, Arial Narrow, sans-serif', s: 20, w: 700, c: pct > .45 ? '#fff' : 'var(--tinta)' })}
+      ${T(cx, 268, l.nome, { w: 600 })}
+      ${T(cx, 290, kg ? sc(kg) + ' sc' : 'Vazio', { f: 'Barlow Condensed, Arial Narrow, sans-serif', s: 20, w: 700 })}
+      ${T(cx, 308, p ? p.sigla + ' · ' + n0(kg) + ' kg' : 'cap. 6 a 7 t', { s: 11, c: 'var(--suave)' })}
+      ${lotes > 1 ? T(cx, 324, lotes + ' lotes', { s: 11, c: 'var(--suave)' }) : ''}`;
+  });
+
+  // Pallets
+  const pal = cad.locais.filter(l => l.tipo === 'PALLET');
+  pal.forEach((l, i) => {
+    const y = 70 + i * 118, kg = soma(doLocal(l.codigo)), bag = /bag/i.test(l.nome);
+    const icone = bag
+      ? `<rect x="${ 676 }" y="${y + 30}" width="30" height="34" rx="3" fill="${kg ? 'var(--verde)' : 'var(--linha)'}"/><path d="M${681} ${y + 30}v-7M${701} ${y + 30}v-7" stroke="var(--torra)" stroke-width="2"/>`
+      : `<ellipse cx="${691}" cy="${y + 48}" rx="15" ry="18" fill="${kg ? 'var(--verde)' : 'var(--linha)'}"/><path d="M${684} ${y + 30}h14" stroke="var(--torra)" stroke-width="2"/>`;
+    svg += `<rect x="664" y="${y}" width="150" height="100" rx="10" fill="var(--papel)" stroke="var(--linha)"/>
+      ${icone}
+      ${T(720, y + 30, bag ? 'Bags' : 'Sacaria', { a: 'start', w: 600 })}
+      ${T(720, y + 58, kg ? sc(kg) + ' sc' : 'Vazio', { a: 'start', f: 'Barlow Condensed, Arial Narrow, sans-serif', s: 22, w: 700 })}
+      ${T(720, y + 78, kg ? n0(kg) + ' kg' : 'em pallets', { a: 'start', s: 12, c: 'var(--suave)' })}`;
+  });
+
+  // Torrador
+  svg += `<rect x="884" y="84" width="12" height="32" fill="var(--torra)"/>
+    <circle cx="880" cy="160" r="42" fill="var(--torra)"/><circle cx="880" cy="160" r="27" fill="none" stroke="#E9DED3" stroke-width="3"/>
+    <path d="M868 160h24M880 148v24" stroke="#E9DED3" stroke-width="3"/>
+    ${T(880, 228, 'Torrador', { w: 600 })}${T(880, 246, '240 kg por torra', { s: 12, c: 'var(--suave)' })}${T(880, 264, 'controle na Etapa 2', { s: 11, c: 'var(--suave)' })}`;
+
+  // Repouso
+  svg += T(1070, 36, 'REPOUSO', { s: 11, w: 600, c: 'var(--suave)' });
+  const rep = [
+    { c: 'RED', cx: 970, nome: 'Redondo', forma: 'M946 128Q946 102 970 102Q994 102 994 128V200L976 228H964L946 200Z', y0: 102, y1: 228 },
+    { c: 'RPQ', cx: 1052, nome: 'Pequeno', forma: 'M1024 118H1080V206L1060 236H1044L1024 206Z', y0: 118, y1: 236 },
+    { c: 'RGR', cx: 1140, nome: 'Grande', forma: 'M1100 82H1180V206L1152 246H1128L1100 206Z', y0: 82, y1: 246 }
+  ];
+  rep.forEach(r => {
+    const l = local(r.c); if (!l) return;
+    const kg = soma(doLocal(r.c)), cap = (l.cap_torras || 1) * KG_TORRADO_POR_TORRA;
+    const pct = Math.min(kg / cap, 1), topo = r.y0 + (1 - pct) * (r.y1 - r.y0);
+    svg += `<clipPath id="c${r.c}"><path d="${r.forma}"/></clipPath>
+      <rect x="${r.cx - 45}" y="${topo}" width="90" height="${r.y1 - topo + 2}" fill="var(--torrado)" clip-path="url(#c${r.c})"/>
+      <path d="${r.forma}" fill="none" stroke="var(--torra)" stroke-width="2.5"/>
+      ${T(r.cx, 268, r.nome, { w: 600 })}
+      ${T(r.cx, 290, n0(kg) + ' kg', { f: 'Barlow Condensed, Arial Narrow, sans-serif', s: 20, w: 700 })}
+      ${T(r.cx, 308, '~' + l.cap_torras + ' torras', { s: 11, c: 'var(--suave)' })}`;
+  });
+  svg += `<path d="M994 170H1020" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    <path d="M1080 170H1096" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)" stroke-dasharray="4 3"/>
+    <path d="M970 98C990 58 1080 52 1112 78" fill="none" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    ${T(1088, 160, 'blend', { s: 10, c: 'var(--suave)' })}`;
+
+  // Fluxo
+  svg += `<path d="M150 348H290" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    ${T(220, 342, 'envio por contrato', { s: 11, c: 'var(--suave)' })}
+    <path d="M300 348H830" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    ${T(560, 342, 'café verde (silos e pallets)', { s: 11, c: 'var(--suave)' })}
+    <path d="M840 348H930" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    ${T(885, 342, 'torra', { s: 11, c: 'var(--suave)' })}
+    <path d="M940 348H1170" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
+    ${T(1055, 342, 'repouso e blend, depois moagem', { s: 11, c: 'var(--suave)' })}
+  </svg>`;
+  return svg;
+}
+
+/* ---------- Tabelas de estoque ---------- */
+const celula = kg => kg > 0 ? `<span class="sc">${sc(kg)} sc</span><span class="kg">${n0(kg)} kg</span>` : '<span class="kg">–</span>';
+
+function desenharProdutos() {
+  let tA = 0, tT = 0;
+  const linhas = cad.produtos.map(p => {
+    const a = soma(doTipo(['ARMAZEM']).filter(s => s.produto === p.sigla));
+    const t = soma(doTipo(['SILO', 'PALLET']).filter(s => s.produto === p.sigla));
+    tA += a; tT += t;
+    return `<tr><td><strong>${esc(p.sigla)}</strong> ${esc(p.nome)}</td><td class="num">${celula(a)}</td><td class="num">${celula(t)}</td><td class="num">${celula(a + t)}</td></tr>`;
   }).join('');
+  $('tabProdutos').innerHTML = linhas + `<tr class="total"><td>Total</td><td class="num">${celula(tA)}</td><td class="num">${celula(tT)}</td><td class="num">${celula(tA + tT)}</td></tr>`;
+}
+
+function desenharContratos() {
+  const itens = doTipo(['ARMAZEM']).sort((a, b) => String(a.lote).localeCompare(String(b.lote)));
+  $('tabContratos').innerHTML = itens.length ? itens.map(s => `<tr>
+    <td><strong>${esc(s.lote || 'Sem contrato')}</strong>${s.proprietario !== 'CHP' ? '<br><span class="kg">' + esc(s.proprietario) + '</span>' : ''}</td>
+    <td>${esc(s.produto)}</td><td class="num">${celula(s.kg)}</td>
+    <td>${perfil !== 'CONSULTA' ? `<button class="btnMini" onclick="enviarContrato('${esc(s.lote)}|${esc(s.produto)}')">Enviar</button>` : ''}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="vazio">Nenhum contrato com saldo no armazém.</td></tr>';
 }
 
 function desenharMovimentos(m) {
-  $('movs').innerHTML = m.length ? m.map(x => `<tr class="${x.estornado ? 'riscado' : ''}" title="${esc(x.observacao)}">
-    <td>${esc(x.id)}</td><td>${esc(x.data_hora)}</td><td><span class="etiqueta ${esc(x.tipo)}">${esc(x.tipo)}</span></td>
-    <td>${esc(x.produto)}</td><td>${esc(x.lote)}</td><td>${esc(nomeLocal(x.origem))}</td><td>${esc(nomeLocal(x.destino))}</td>
-    <td class="num">${fmt(x.kg)}</td><td>${esc(String(x.usuario).split('@')[0])}</td>
-    <td>${perfil === 'ADMIN' && x.tipo !== 'ESTORNO' && !x.estornado ? `<button class="btnEstorno" onclick="estornar('${esc(x.id)}')">Estornar</button>` : ''}</td></tr>`).join('')
-    : '<tr><td colspan="10" class="vazio">Nenhum movimento ainda. Registre a primeira entrada ao lado.</td></tr>';
+  $('movs').innerHTML = m.length ? m.map(x => {
+    const tipo = x.tipo === 'TRANSFERENCIA' && x.origem === 'VIL' ? 'ENVIO' : x.tipo;
+    const lote = x.lote_destino && x.lote_destino !== x.lote ? esc(x.lote) + ' → ' + esc(x.lote_destino) : esc(x.lote);
+    return `<tr class="${x.estornado ? 'riscado' : ''}" title="${esc(x.observacao)}">
+    <td>${esc(x.id)}</td><td>${esc(x.data_hora)}</td><td><span class="etiqueta ${esc(tipo)}">${esc(tipo)}</span></td>
+    <td>${esc(x.produto)}</td><td>${lote}</td><td>${esc(nomeLocal(x.origem))}</td><td>${esc(nomeLocal(x.destino))}</td>
+    <td class="num">${sc(x.kg)}</td><td class="num">${n1(x.kg)}</td><td>${esc(String(x.usuario).split('@')[0])}</td>
+    <td>${perfil === 'ADMIN' && x.tipo !== 'ESTORNO' && !x.estornado ? `<button class="btnMini" onclick="estornar('${esc(x.id)}')">Estornar</button>` : ''}</td></tr>`;
+  }).join('') : '<tr><td colspan="11" class="vazio">Nenhum movimento ainda. Comece registrando a entrada de um contrato no armazém.</td></tr>';
 }
 
-/* ---------- Formulário ---------- */
-function ajustarForm() {
-  const t = tipoAtual(), menos = $('sentido').value === 'menos';
-  const mostraOrigem = t === 'TRANSFERENCIA' || t === 'SAIDA' || (t === 'AJUSTE' && menos);
-  const mostraDestino = t === 'TRANSFERENCIA' || t === 'ENTRADA' || (t === 'AJUSTE' && !menos);
-  $('cxOrigem').classList.toggle('oculto', !mostraOrigem);
-  $('cxDestino').classList.toggle('oculto', !mostraDestino);
+/* ---------- Abas ---------- */
+document.querySelectorAll('.aba').forEach(b => b.addEventListener('click', () => abrirAba(b.dataset.painel)));
+function abrirAba(id) {
+  document.querySelectorAll('.aba').forEach(b => b.setAttribute('aria-selected', b.dataset.painel === id));
+  document.querySelectorAll('.painel').forEach(p => p.classList.toggle('oculto', p.id !== id));
+}
+
+/* ---------- Entrada no armazém ---------- */
+$('eSacas').addEventListener('input', () => { const v = num($('eSacas').value); $('eKg').value = isNaN(v) ? '' : campoNum(v * KG_SACA); });
+$('eKg').addEventListener('input', () => { const v = num($('eKg').value); $('eSacas').value = isNaN(v) ? '' : campoNum(v / KG_SACA); });
+
+$('fEntrada').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const contrato = $('eContrato').value.trim().toUpperCase();
+  if (!contrato) return aviso('Informe o número do contrato.', true);
+  if (!/^CVI-\d+$/.test(contrato) && !confirm(`"${contrato}" não segue o padrão CVI-0000. Registrar mesmo assim?`)) return;
+  enviar(ev.submitter, 'registrarMovimento', {
+    tipo: 'ENTRADA', destino: 'VIL', contrato, produto: $('eProduto').value, proprietario: $('eProprietario').value,
+    kg: num($('eKg').value), documento: $('eDoc').value, observacao: $('eObs').value
+  }, r => `Entrada ${r.id} registrada no contrato ${r.lote}.`, ['eContrato', 'eSacas', 'eKg', 'eDoc', 'eObs']);
+});
+
+/* ---------- Envio à torrefação ---------- */
+function opcoesDestino() {
+  return cad.locais.filter(l => l.tipo === 'SILO' || l.tipo === 'PALLET').map(l => {
+    let info = '';
+    if (l.tipo === 'SILO') {
+      const itens = doLocal(l.codigo), kg = soma(itens);
+      info = kg ? ` · ${itens[0].produto} ${n0(kg)} kg` : ' · vazio';
+    }
+    return `<option value="${esc(l.codigo)}">${esc(l.nome)}${esc(info)}</option>`;
+  }).join('');
+}
+
+function montarEnvio() {
+  const itens = doTipo(['ARMAZEM']);
+  const atual = $('vContrato').value;
+  $('vContrato').innerHTML = itens.length
+    ? itens.map(s => `<option value="${esc(s.lote)}|${esc(s.produto)}">${esc(s.lote || 'Sem contrato')} · ${esc(s.produto)} · ${sc(s.kg)} sc (${n0(s.kg)} kg)</option>`).join('')
+    : '<option value="">Nenhum contrato com saldo</option>';
+  if (atual && [...$('vContrato').options].some(o => o.value === atual)) $('vContrato').value = atual;
+  $('vDestinos').innerHTML = ''; linhaDestino(); atualizarEnvio();
+}
+
+function linhaDestino() {
+  const div = document.createElement('div'); div.className = 'destino';
+  div.innerHTML = `<label class="campo"><span>Destino</span><select class="dDest">${opcoesDestino()}</select></label>
+    <label class="campo"><span>Peso (kg)</span><input class="dKg" inputmode="decimal"></label>
+    <div class="conv"></div><button type="button" class="btnX" aria-label="Remover destino">×</button>`;
+  div.querySelector('.dKg').addEventListener('input', atualizarEnvio);
+  div.querySelector('.btnX').addEventListener('click', () => { if ($('vDestinos').children.length > 1) { div.remove(); atualizarEnvio(); } });
+  $('vDestinos').appendChild(div);
+}
+$('vMais').addEventListener('click', linhaDestino);
+$('vContrato').addEventListener('change', atualizarEnvio);
+
+function contratoSel() {
+  const [lote, produto] = ($('vContrato').value || '|').split('|');
+  return saldos.find(s => s.local === 'VIL' && s.lote === lote && s.produto === produto);
+}
+
+function atualizarEnvio() {
+  const c = contratoSel();
+  $('vSaldo').textContent = c ? `Saldo do contrato: ${sc(c.kg)} sacas (${n0(c.kg)} kg) de ${prodInfo(c.produto)?.nome || c.produto}.` : '';
+  let total = 0;
+  $('vDestinos').querySelectorAll('.destino').forEach(d => {
+    const v = num(d.querySelector('.dKg').value);
+    d.querySelector('.conv').textContent = isNaN(v) ? '' : sc(v) + ' sc';
+    if (!isNaN(v)) total += v;
+  });
+  const passou = c && total > c.kg + 0.001;
+  $('vTotal').className = 'totalEnvio' + (passou ? ' erro' : '');
+  $('vTotal').textContent = total ? `Total do envio: ${sc(total)} sc (${n1(total)} kg)${passou ? ' · maior que o saldo do contrato' : ''}` : '';
+}
+
+function enviarContrato(chave) {
+  abrirAba('pEnvio'); $('vContrato').value = chave; atualizarEnvio();
+  $('secOperacoes').scrollIntoView({ behavior: 'smooth' });
+}
+
+$('fEnvio').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const c = contratoSel();
+  if (!c) return aviso('Selecione um contrato com saldo.', true);
+  const itens = [...$('vDestinos').querySelectorAll('.destino')].map(d => ({ destino: d.querySelector('.dDest').value, kg: num(d.querySelector('.dKg').value) })).filter(i => i.kg > 0);
+  if (!itens.length) return aviso('Informe o peso de pelo menos um destino.', true);
+  enviar(ev.submitter, 'enviarTorrefacao', { contrato: c.lote, produto: c.produto, itens, observacao: $('vObs').value },
+    r => `Envio registrado. Lote ${r.lote} gerado com ${sc(r.kg)} sacas.`, ['vObs']);
+});
+
+/* ---------- Outros movimentos ---------- */
+const tipoOutros = () => document.querySelector('input[name=tipo]:checked').value;
+function ajustarOutros() {
+  const t = tipoOutros(), menos = $('oSentido').value === 'menos';
+  const temOrigem = t === 'TRANSFERENCIA' || t === 'SAIDA' || (t === 'AJUSTE' && menos);
+  const temDestino = t === 'TRANSFERENCIA' || t === 'ENTRADA' || (t === 'AJUSTE' && !menos);
+  $('cxOrigem').classList.toggle('oculto', !temOrigem);
+  $('cxLote').classList.toggle('oculto', !temOrigem);
+  $('cxDestino').classList.toggle('oculto', !temDestino);
   $('cxSentido').classList.toggle('oculto', t !== 'AJUSTE');
   $('cxGerarLote').classList.toggle('oculto', t !== 'ENTRADA');
-  $('cxDocumento').classList.toggle('oculto', t !== 'ENTRADA' && t !== 'SAIDA');
-  $('cxLote').classList.toggle('oculto', t === 'ENTRADA');
-  $('observacao').placeholder = t === 'AJUSTE' ? 'Obrigatório: motivo do ajuste' : '';
-  if (mostraOrigem) {
-    const disp = saldos.filter(s => s.local === $('origem').value && s.produto === $('produto').value && s.proprietario === $('proprietario').value && s.kg > 0);
-    $('lote').innerHTML = disp.length
-      ? disp.map(s => `<option value="${esc(s.lote)}">${esc(s.lote || 'Sem lote')} (${fmt(s.kg)} kg)</option>`).join('')
+  $('oObs').placeholder = t === 'AJUSTE' ? 'Obrigatório: motivo do ajuste' : '';
+
+  const locais = cad.locais.filter(l => !(t === 'TRANSFERENCIA' && l.codigo === 'VIL'));
+  const optsOrig = locais.map(l => `<option value="${esc(l.codigo)}">${esc(l.nome)}</option>`).join('');
+  const optsDest = cad.locais.filter(l => !(t !== 'AJUSTE' && l.codigo === 'VIL')).map(l => `<option value="${esc(l.codigo)}">${esc(l.nome)}</option>`).join('');
+  const vo = $('oOrigem').value, vd = $('oDestino').value;
+  $('oOrigem').innerHTML = optsOrig; if ([...$('oOrigem').options].some(o => o.value === vo)) $('oOrigem').value = vo;
+  $('oDestino').innerHTML = optsDest; if ([...$('oDestino').options].some(o => o.value === vd)) $('oDestino').value = vd;
+
+  if (temOrigem) {
+    const disp = saldos.filter(s => s.local === $('oOrigem').value && s.produto === $('oProduto').value && s.proprietario === $('oProprietario').value && s.kg > 0);
+    $('oLote').innerHTML = disp.length
+      ? disp.map(s => `<option value="${esc(s.lote)}">${esc(s.lote || 'Sem lote')} (${n0(s.kg)} kg)</option>`).join('')
       : '<option value="">Sem saldo deste produto aqui</option>';
-  } else if (t === 'AJUSTE') {
-    $('lote').innerHTML = '<option value="">Sem lote</option>';
   }
 }
+document.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('change', ajustarOutros));
+['oSentido', 'oOrigem', 'oProduto', 'oProprietario'].forEach(id => $(id).addEventListener('change', ajustarOutros));
+$('oKg').addEventListener('input', () => { const v = num($('oKg').value); $('oSacas').value = isNaN(v) ? '' : campoNum(v / KG_SACA); });
+$('oSacas').addEventListener('input', () => { const v = num($('oSacas').value); $('oKg').value = isNaN(v) ? '' : campoNum(v * KG_SACA); });
 
-document.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('change', ajustarForm));
-['sentido', 'origem', 'produto', 'proprietario'].forEach(id => $(id).addEventListener('change', ajustarForm));
-
-$('form').addEventListener('submit', async ev => {
+$('fOutros').addEventListener('submit', ev => {
   ev.preventDefault();
-  const t = tipoAtual(), menos = $('sentido').value === 'menos';
-  const origemVisivel = !$('cxOrigem').classList.contains('oculto');
-  const destinoVisivel = !$('cxDestino').classList.contains('oculto');
-  const dados = {
-    tipo: t, produto: $('produto').value, proprietario: $('proprietario').value,
-    origem: origemVisivel ? $('origem').value : '', destino: destinoVisivel ? $('destino').value : '',
-    lote: t === 'ENTRADA' ? '' : $('lote').value, gerarLote: t === 'ENTRADA' && $('gerarLote').checked,
-    kg: $('kg').value, unidades: $('unidades').value, documento: $('documento').value, observacao: $('observacao').value
-  };
-  if (!(Number(String(dados.kg).replace(',', '.')) > 0)) return aviso('Informe o peso em kg.', true);
-  if (t === 'AJUSTE' && !dados.observacao.trim()) return aviso('Escreva o motivo do ajuste.', true);
-  $('btnSalvar').disabled = true; $('btnSalvar').textContent = 'Registrando...';
-  try {
-    const r = await api('registrarMovimento', dados);
-    aviso(`Movimento ${r.id} registrado${r.lote && t === 'ENTRADA' ? '. Lote ' + r.lote : ''}.`);
-    ['kg', 'unidades', 'documento', 'observacao'].forEach(id => $(id).value = '');
-    await carregarTudo();
-  } catch (e) { if (e.message !== 'SESSAO' && e.message !== 'NAO_AUTORIZADO') aviso(e.message, true); }
-  finally { $('btnSalvar').disabled = false; $('btnSalvar').textContent = 'Registrar movimento'; }
+  const t = tipoOutros();
+  const origem = $('cxOrigem').classList.contains('oculto') ? '' : $('oOrigem').value;
+  const destino = $('cxDestino').classList.contains('oculto') ? '' : $('oDestino').value;
+  if (t === 'AJUSTE' && !$('oObs').value.trim()) return aviso('Escreva o motivo do ajuste.', true);
+  enviar(ev.submitter, 'registrarMovimento', {
+    tipo: t, produto: $('oProduto').value, proprietario: $('oProprietario').value, origem, destino,
+    lote: origem ? $('oLote').value : '', gerarLote: t === 'ENTRADA' && $('oGerarLote').checked,
+    kg: num($('oKg').value), documento: $('oDoc').value, observacao: $('oObs').value
+  }, r => `Movimento ${r.id} registrado${r.lote && t === 'ENTRADA' ? '. Lote ' + r.lote : ''}.`, ['oKg', 'oSacas', 'oDoc', 'oObs']);
 });
+
+/* ---------- Envio genérico ---------- */
+async function enviar(botao, acao, dados, msgOk, limpar) {
+  const kgs = dados.itens ? dados.itens.map(i => i.kg) : [dados.kg];
+  if (kgs.some(k => !(k > 0))) return aviso('Informe o peso em kg.', true);
+  const txt = botao.textContent; botao.disabled = true; botao.textContent = 'Registrando...';
+  try {
+    const r = await api(acao, dados);
+    aviso(msgOk(r)); limpar.forEach(id => $(id).value = '');
+    await carregar();
+  } catch (e) { if (erroReal(e)) aviso(e.message, true); }
+  finally { botao.disabled = false; botao.textContent = txt; }
+}
 
 async function estornar(id) {
   const motivo = prompt(`Motivo do estorno de ${id}:`);
   if (motivo === null) return;
   if (!motivo.trim()) return aviso('O estorno exige um motivo.', true);
-  try { const r = await api('estornar', { id, motivo }); aviso(`Estorno ${r.id} registrado.`); await carregarTudo(); }
-  catch (e) { if (e.message !== 'SESSAO' && e.message !== 'NAO_AUTORIZADO') aviso(e.message, true); }
+  try { const r = await api('estornar', { id, motivo }); aviso(`Estorno ${r.id} registrado.`); await carregar(); }
+  catch (e) { if (erroReal(e)) aviso(e.message, true); }
 }
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="iniciarGoogle()"></script>
