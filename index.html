@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estoque da torrefação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fundo:#ECEFE8; --papel:#F8F9F5; --tinta:#1E2620; --suave:#5E6A5F; --linha:#CBD2C4;
+  --verde:#7C8F55; --ocre:#B08A45; --torra:#4A2C1D; --alerta:#B3412E; --ok:#3E6B3A;
+  --num:'Barlow Condensed','Arial Narrow',sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--tinta);font:16px/1.5 'Barlow',system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ocre);outline-offset:2px}
+.oculto{display:none!important}
+
+/* Login */
+#telaLogin{min-height:100vh;display:grid;place-items:center;padding:24px}
+.cartaoLogin{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:40px 32px;max-width:380px;width:100%;text-align:center}
+.cartaoLogin h1{font-family:var(--num);font-weight:600;font-size:34px;line-height:1.1;margin:16px 0 8px}
+.cartaoLogin p{color:var(--suave);margin:0 0 24px}
+#btnGoogle{display:flex;justify-content:center;min-height:44px}
+#msgLogin{color:var(--alerta);margin-top:16px;min-height:1.5em}
+
+/* App */
+header{background:var(--torra);color:#F3EDE6;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header h1{font-family:var(--num);font-weight:600;font-size:24px;margin:0}
+.usuario{display:flex;align-items:center;gap:12px;font-size:14px}
+.btnLinha{background:transparent;border:1px solid currentColor;border-radius:6px;padding:4px 12px;cursor:pointer}
+main{max-width:1200px;margin:0 auto;padding:24px}
+h2{font-family:var(--num);font-weight:600;font-size:22px;margin:32px 0 12px}
+h2:first-child{margin-top:0}
+
+/* Silos */
+.silos{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.silo{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:16px;text-align:center}
+.silo svg{width:100%;max-width:130px;height:auto}
+.silo .nome{font-weight:600;margin-top:6px}
+.silo .kg{font-family:var(--num);font-size:26px;font-weight:600;line-height:1.1}
+.silo .detalhe{font-size:13px;color:var(--suave)}
+.locais{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:16px}
+.local{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:16px}
+.local .topo{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--linha);padding-bottom:8px;margin-bottom:8px}
+.local .topo strong{font-size:17px}
+.local .topo span{font-family:var(--num);font-size:22px;font-weight:600}
+.linhaProd{display:flex;justify-content:space-between;font-size:14px;padding:2px 0}
+.vazio{color:var(--suave);font-size:14px}
+
+/* Formulário */
+.grade{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:24px;align-items:start}
+form{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:20px;display:grid;gap:14px}
+.tipos{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--linha);border-radius:8px;overflow:hidden}
+.tipos label{text-align:center;padding:10px 4px;cursor:pointer;font-weight:500;font-size:14px;border-right:1px solid var(--linha)}
+.tipos label:last-child{border-right:0}
+.tipos input{position:absolute;opacity:0}
+.tipos label:has(input:checked){background:var(--torra);color:#F3EDE6}
+.tipos label:has(input:focus-visible){outline:3px solid var(--ocre);outline-offset:-3px}
+.campo{display:grid;gap:4px}
+.campo span{font-size:13px;font-weight:500;color:var(--suave)}
+.campo input,.campo select,.campo textarea{background:#fff;border:1px solid var(--linha);border-radius:6px;padding:9px 10px;min-height:42px}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.btnPrincipal{background:var(--torra);color:#F3EDE6;border:0;border-radius:8px;padding:12px;font-weight:600;font-size:17px;cursor:pointer;min-height:48px}
+.btnPrincipal:disabled{opacity:.55;cursor:wait}
+
+/* Tabela */
+.tabela{background:var(--papel);border:1px solid var(--linha);border-radius:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--suave);padding:10px 12px;border-bottom:1px solid var(--linha);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--linha);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-family:var(--num);font-size:16px}
+tr.riscado td{color:var(--suave);text-decoration:line-through}
+.etiqueta{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;font-weight:600}
+.ENTRADA{background:#DDE6CF;color:#34431F}.SAIDA{background:#F1D9CC;color:#6E2A14}
+.TRANSFERENCIA{background:#E3E0D5;color:#403B2C}.AJUSTE{background:#F2E6C9;color:#5E4513}.ESTORNO{background:#EBD3D0;color:#6A1F18}
+.btnEstorno{background:none;border:1px solid var(--linha);border-radius:6px;padding:2px 10px;cursor:pointer;font-size:13px}
+
+#aviso{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 20px;border-radius:8px;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+#aviso.erro{background:var(--alerta)}
+@media (max-width:860px){.silos{grid-template-columns:repeat(2,1fr)}.grade{grid-template-columns:1fr}main{padding:16px}}
+</style>
+</head>
+<body>
+
+<section id="telaLogin">
+  <div class="cartaoLogin">
+    <svg width="64" height="92" viewBox="0 0 120 180" aria-hidden="true"><path d="M14 8H106V120L66 170H54L14 120Z" fill="none" stroke="#4A2C1D" stroke-width="5"/><path d="M14 70H106V120L66 170H54L14 120Z" fill="#7C8F55"/></svg>
+    <h1>Estoque da torrefação</h1>
+    <p>Entre com a conta Google autorizada pela empresa.</p>
+    <div id="btnGoogle"></div>
+    <div id="msgLogin" role="alert"></div>
+  </div>
+</section>
+
+<div id="telaApp" class="oculto">
+  <header>
+    <h1>Estoque da torrefação</h1>
+    <div class="usuario"><span id="nomeUsuario"></span><button class="btnLinha" onclick="sair()">Sair</button></div>
+  </header>
+  <main>
+    <h2>Silos</h2>
+    <div class="silos" id="silos"></div>
+    <div class="locais" id="locais"></div>
+
+    <div class="grade">
+      <div>
+        <h2>Registrar movimento</h2>
+        <form id="form" novalidate>
+          <div class="tipos" role="radiogroup" aria-label="Tipo de movimento">
+            <label><input type="radio" name="tipo" value="ENTRADA" checked>Entrada</label>
+            <label><input type="radio" name="tipo" value="TRANSFERENCIA">Transferir</label>
+            <label><input type="radio" name="tipo" value="SAIDA">Saída</label>
+            <label><input type="radio" name="tipo" value="AJUSTE">Ajuste</label>
+          </div>
+          <div class="dupla">
+            <label class="campo"><span>Produto</span><select id="produto" required></select></label>
+            <label class="campo"><span>Proprietário</span><select id="proprietario" required></select></label>
+          </div>
+          <label class="campo oculto" id="cxSentido"><span>Sentido do ajuste</span>
+            <select id="sentido"><option value="mais">Acréscimo (sobra no inventário)</option><option value="menos">Baixa (falta no inventário)</option></select></label>
+          <label class="campo" id="cxOrigem"><span>De onde sai</span><select id="origem"></select></label>
+          <label class="campo" id="cxLote"><span>Lote</span><select id="lote"></select></label>
+          <label class="check" id="cxGerarLote"><input type="checkbox" id="gerarLote" checked>Gerar código de lote na entrada</label>
+          <label class="campo" id="cxDestino"><span>Para onde vai</span><select id="destino"></select></label>
+          <div class="dupla">
+            <label class="campo"><span>Peso (kg)</span><input id="kg" inputmode="decimal" required></label>
+            <label class="campo"><span>Sacas / bags</span><input id="unidades" inputmode="numeric"></label>
+          </div>
+          <label class="campo" id="cxDocumento"><span>Nota fiscal / documento</span><input id="documento"></label>
+          <label class="campo"><span>Observação</span><textarea id="observacao" rows="2"></textarea></label>
+          <button class="btnPrincipal" id="btnSalvar" type="submit">Registrar movimento</button>
+        </form>
+      </div>
+      <div>
+        <h2>Últimos movimentos</h2>
+        <div class="tabela"><table>
+          <thead><tr><th>Código</th><th>Data</th><th>Tipo</th><th>Produto</th><th>Lote</th><th>De</th><th>Para</th><th>kg</th><th>Usuário</th><th></th></tr></thead>
+          <tbody id="movs"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="aviso" class="oculto" role="status"></div>
+
+<script>
+/* ======= PREENCHER ======= */
+const CONFIG = {
+  CLIENT_ID: '756025537677-hvhfe6a9bpiubh4php2mge57tvre1qu7.apps.googleusercontent.com',
+  API_URL: 'https://script.google.com/macros/s/AKfycbyVqAx08BFfcK9a5dTzaPi4T5CYB7Gzo47t9omYrzPLU_cnkQE0czh-wwTZl-VfZzV3xg/exec'
+};
+/* ========================= */
+
+let token = sessionStorage.getItem('tk');
+let cad = { produtos: [], locais: [], proprietarios: [] };
+let saldos = [];
+let perfil = 'CONSULTA';
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nomeLocal = c => c === 'EXT' ? 'Externo' : (cad.locais.find(l => l.codigo === c)?.nome || c || '');
+const tipoAtual = () => document.querySelector('input[name=tipo]:checked').value;
+
+function tokenValido(t) {
+  try { return JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp * 1000 > Date.now() + 60000; }
+  catch { return false; }
+}
+
+async function api(acao, dados) {
+  if (!token || !tokenValido(token)) { sair('Sua sessão expirou. Entre novamente.'); throw new Error('SESSAO'); }
+  const r = await fetch(CONFIG.API_URL, { method: 'POST', body: JSON.stringify({ token, acao, dados }) });
+  const j = await r.json();
+  if (!j.ok && j.erro === 'NAO_AUTORIZADO') { sair('Este e-mail não tem acesso ou a sessão expirou.'); throw new Error('NAO_AUTORIZADO'); }
+  if (!j.ok) throw new Error(j.erro);
+  return j.dados;
+}
+
+function aviso(msg, erro) {
+  const a = $('aviso'); a.textContent = msg; a.className = erro ? 'erro' : '';
+  clearTimeout(a._t); a._t = setTimeout(() => a.classList.add('oculto'), erro ? 7000 : 4000);
+}
+
+/* ---------- Login ---------- */
+function iniciarGoogle() {
+  google.accounts.id.initialize({ client_id: CONFIG.CLIENT_ID, callback: r => { token = r.credential; sessionStorage.setItem('tk', token); entrar(); }, auto_select: true });
+  google.accounts.id.renderButton($('btnGoogle'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'pt-BR' });
+  if (token && tokenValido(token)) entrar(); else google.accounts.id.prompt();
+}
+
+async function entrar() {
+  $('msgLogin').textContent = 'Verificando acesso...';
+  try {
+    const u = await api('me');
+    perfil = u.perfil;
+    $('nomeUsuario').textContent = u.nome + ' (' + u.perfil.toLowerCase() + ')';
+    aplicarPerfil();
+    $('telaLogin').classList.add('oculto'); $('telaApp').classList.remove('oculto');
+    await carregarTudo();
+  } catch (e) { if (!['SESSAO', 'NAO_AUTORIZADO'].includes(e.message)) $('msgLogin').textContent = e.message; }
+}
+
+function aplicarPerfil() {
+  const podeLancar = perfil === 'ADMIN' || perfil === 'OPERADOR';
+  $('form').closest('.grade > div').classList.toggle('oculto', !podeLancar);
+  document.querySelector('input[value=AJUSTE]').closest('label').classList.toggle('oculto', perfil !== 'ADMIN');
+  document.querySelector('.tipos').style.gridTemplateColumns = perfil === 'ADMIN' ? '' : 'repeat(3,1fr)';
+}
+
+function sair(msg) {
+  token = null; sessionStorage.removeItem('tk');
+  if (window.google) google.accounts.id.disableAutoSelect();
+  $('telaApp').classList.add('oculto'); $('telaLogin').classList.remove('oculto');
+  $('msgLogin').textContent = msg || '';
+}
+
+/* ---------- Dados ---------- */
+async function carregarTudo() {
+  const [c, s, m] = await Promise.all([api('cadastros'), api('saldos'), api('movimentos', { limite: 40 })]);
+  cad = c; saldos = s;
+  preencherSelects(); desenharEstoque(); desenharMovimentos(m); ajustarForm();
+}
+
+function preencherSelects() {
+  $('produto').innerHTML = cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
+  $('proprietario').innerHTML = cad.proprietarios.map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join('');
+  const opt = cad.locais.map(l => `<option value="${esc(l.codigo)}">${esc(l.nome)}</option>`).join('');
+  $('origem').innerHTML = opt; $('destino').innerHTML = opt;
+}
+
+/* ---------- Croqui dos silos ---------- */
+function desenharSilo(loc, itens) {
+  const total = itens.reduce((a, s) => a + s.kg, 0);
+  const prod = cad.produtos.find(p => p.sigla === itens[0]?.produto);
+  const cap = prod ? (prod.tipo_silo === 'ESCOLHA' ? loc.cap_escolha_kg : loc.cap_grao_kg) : loc.cap_escolha_kg;
+  const pct = cap ? Math.min(total / cap, 1) : 0;
+  const topo = 8 + (1 - pct) * 162;
+  const cor = prod?.tipo_silo === 'GRAO' ? 'var(--ocre)' : 'var(--verde)';
+  const lotes = [...new Set(itens.map(s => s.lote).filter(Boolean))];
+  const id = 'clip' + loc.codigo;
+  return `<div class="silo">
+    <svg viewBox="0 0 120 180" role="img" aria-label="${esc(loc.nome)}: ${Math.round(pct * 100)}% ocupado">
+      <defs><clipPath id="${id}"><path d="M14 8H106V120L66 170H54L14 120Z"/></clipPath></defs>
+      <rect x="0" y="${topo}" width="120" height="${180 - topo}" fill="${cor}" clip-path="url(#${id})"/>
+      <path d="M14 8H106V120L66 170H54L14 120Z" fill="none" stroke="var(--torra)" stroke-width="3"/>
+      <text x="60" y="${Math.max(topo - 6, 26)}" text-anchor="middle" font-family="Barlow Condensed" font-size="18" fill="var(--tinta)">${Math.round(pct * 100)}%</text>
+    </svg>
+    <div class="nome">${esc(loc.nome)}</div>
+    <div class="kg">${fmt(total)} kg</div>
+    <div class="detalhe">${prod ? esc(prod.nome) + ' de ' + fmt(cap) + ' kg' : 'Vazio'}</div>
+    <div class="detalhe">${lotes.length ? lotes.length + (lotes.length > 1 ? ' lotes misturados' : ' lote') : ''}</div>
+  </div>`;
+}
+
+function desenharEstoque() {
+  $('silos').innerHTML = cad.locais.filter(l => l.tipo === 'SILO')
+    .map(l => desenharSilo(l, saldos.filter(s => s.local === l.codigo && s.kg > 0))).join('');
+  $('locais').innerHTML = cad.locais.filter(l => l.tipo !== 'SILO').map(l => {
+    const itens = saldos.filter(s => s.local === l.codigo && s.kg > 0);
+    const grupos = {};
+    itens.forEach(s => { const k = s.produto + (s.proprietario !== 'CHP' ? ' (' + s.proprietario + ')' : ''); grupos[k] = (grupos[k] || 0) + s.kg; });
+    const total = itens.reduce((a, s) => a + s.kg, 0);
+    const linhas = Object.entries(grupos).map(([k, v]) => `<div class="linhaProd"><span>${esc(k)}</span><span>${fmt(v)} kg</span></div>`).join('');
+    return `<div class="local"><div class="topo"><strong>${esc(l.nome)}</strong><span>${fmt(total)} kg</span></div>${linhas || '<div class="vazio">Sem estoque</div>'}</div>`;
+  }).join('');
+}
+
+function desenharMovimentos(m) {
+  $('movs').innerHTML = m.length ? m.map(x => `<tr class="${x.estornado ? 'riscado' : ''}" title="${esc(x.observacao)}">
+    <td>${esc(x.id)}</td><td>${esc(x.data_hora)}</td><td><span class="etiqueta ${esc(x.tipo)}">${esc(x.tipo)}</span></td>
+    <td>${esc(x.produto)}</td><td>${esc(x.lote)}</td><td>${esc(nomeLocal(x.origem))}</td><td>${esc(nomeLocal(x.destino))}</td>
+    <td class="num">${fmt(x.kg)}</td><td>${esc(String(x.usuario).split('@')[0])}</td>
+    <td>${perfil === 'ADMIN' && x.tipo !== 'ESTORNO' && !x.estornado ? `<button class="btnEstorno" onclick="estornar('${esc(x.id)}')">Estornar</button>` : ''}</td></tr>`).join('')
+    : '<tr><td colspan="10" class="vazio">Nenhum movimento ainda. Registre a primeira entrada ao lado.</td></tr>';
+}
+
+/* ---------- Formulário ---------- */
+function ajustarForm() {
+  const t = tipoAtual(), menos = $('sentido').value === 'menos';
+  const mostraOrigem = t === 'TRANSFERENCIA' || t === 'SAIDA' || (t === 'AJUSTE' && menos);
+  const mostraDestino = t === 'TRANSFERENCIA' || t === 'ENTRADA' || (t === 'AJUSTE' && !menos);
+  $('cxOrigem').classList.toggle('oculto', !mostraOrigem);
+  $('cxDestino').classList.toggle('oculto', !mostraDestino);
+  $('cxSentido').classList.toggle('oculto', t !== 'AJUSTE');
+  $('cxGerarLote').classList.toggle('oculto', t !== 'ENTRADA');
+  $('cxDocumento').classList.toggle('oculto', t !== 'ENTRADA' && t !== 'SAIDA');
+  $('cxLote').classList.toggle('oculto', t === 'ENTRADA');
+  $('observacao').placeholder = t === 'AJUSTE' ? 'Obrigatório: motivo do ajuste' : '';
+  if (mostraOrigem) {
+    const disp = saldos.filter(s => s.local === $('origem').value && s.produto === $('produto').value && s.proprietario === $('proprietario').value && s.kg > 0);
+    $('lote').innerHTML = disp.length
+      ? disp.map(s => `<option value="${esc(s.lote)}">${esc(s.lote || 'Sem lote')} (${fmt(s.kg)} kg)</option>`).join('')
+      : '<option value="">Sem saldo deste produto aqui</option>';
+  } else if (t === 'AJUSTE') {
+    $('lote').innerHTML = '<option value="">Sem lote</option>';
+  }
+}
+
+document.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('change', ajustarForm));
+['sentido', 'origem', 'produto', 'proprietario'].forEach(id => $(id).addEventListener('change', ajustarForm));
+
+$('form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const t = tipoAtual(), menos = $('sentido').value === 'menos';
+  const origemVisivel = !$('cxOrigem').classList.contains('oculto');
+  const destinoVisivel = !$('cxDestino').classList.contains('oculto');
+  const dados = {
+    tipo: t, produto: $('produto').value, proprietario: $('proprietario').value,
+    origem: origemVisivel ? $('origem').value : '', destino: destinoVisivel ? $('destino').value : '',
+    lote: t === 'ENTRADA' ? '' : $('lote').value, gerarLote: t === 'ENTRADA' && $('gerarLote').checked,
+    kg: $('kg').value, unidades: $('unidades').value, documento: $('documento').value, observacao: $('observacao').value
+  };
+  if (!(Number(String(dados.kg).replace(',', '.')) > 0)) return aviso('Informe o peso em kg.', true);
+  if (t === 'AJUSTE' && !dados.observacao.trim()) return aviso('Escreva o motivo do ajuste.', true);
+  $('btnSalvar').disabled = true; $('btnSalvar').textContent = 'Registrando...';
+  try {
+    const r = await api('registrarMovimento', dados);
+    aviso(`Movimento ${r.id} registrado${r.lote && t === 'ENTRADA' ? '. Lote ' + r.lote : ''}.`);
+    ['kg', 'unidades', 'documento', 'observacao'].forEach(id => $(id).value = '');
+    await carregarTudo();
+  } catch (e) { if (e.message !== 'SESSAO' && e.message !== 'NAO_AUTORIZADO') aviso(e.message, true); }
+  finally { $('btnSalvar').disabled = false; $('btnSalvar').textContent = 'Registrar movimento'; }
+});
+
+async function estornar(id) {
+  const motivo = prompt(`Motivo do estorno de ${id}:`);
+  if (motivo === null) return;
+  if (!motivo.trim()) return aviso('O estorno exige um motivo.', true);
+  try { const r = await api('estornar', { id, motivo }); aviso(`Estorno ${r.id} registrado.`); await carregarTudo(); }
+  catch (e) { if (e.message !== 'SESSAO' && e.message !== 'NAO_AUTORIZADO') aviso(e.message, true); }
+}
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="iniciarGoogle()"></script>
+</body>
+</html>
