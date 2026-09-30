@@ -91,18 +91,26 @@ tr.zero td{color:var(--suave)}
 .destino{display:grid;grid-template-columns:2.2fr 1fr 1fr 80px 36px;gap:10px;align-items:end}
 .destino .conv{font-family:var(--num);font-size:18px;padding-bottom:8px}
 .btnX{height:42px;border:1px solid var(--linha);background:#fff;border-radius:6px;cursor:pointer}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
 .totalEnvio{font-weight:600}
 .totalEnvio.erro{color:var(--alerta)}
 .botoes{display:flex;gap:10px;flex-wrap:wrap}
 .btnPrincipal{background:var(--torra);color:#F3EDE6;border:0;border-radius:8px;padding:12px 24px;font-weight:600;font-size:17px;cursor:pointer;min-height:48px;justify-self:start}
 .btnPrincipal:disabled{opacity:.55;cursor:wait}
+.origem{display:grid;grid-template-columns:1.3fr 1.3fr 1.6fr 1fr 36px;gap:10px;align-items:end}
+.checks .check{justify-content:flex-start}
+.checks input[type=checkbox]{width:18px;height:18px;min-height:0;padding:0;flex:none}
+.checks{display:grid;gap:6px;background:#fff;border:1px solid var(--linha);border-radius:6px;padding:10px 12px}
+.subtitulo{font-family:var(--num);font-weight:600;font-size:18px;margin:6px 0 0}
+.divisoria{border:0;border-top:1px solid var(--linha);margin:26px 0 18px}
+.TORRA{background:#EADFD4;color:#4A2C1D}.TRANSF_TORRADO{background:#E3E0D5;color:#403B2C}.CONSUMO{background:#F1D9CC;color:#6E2A14}
 .btnSec{background:#fff;border:1px dashed var(--suave);border-radius:6px;padding:8px 14px;cursor:pointer}
 
 #aviso{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 20px;border-radius:8px;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:10}
 #aviso.erro{background:var(--alerta)}
 @media (max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:980px){.duas{grid-template-columns:1fr}main{padding:16px}}
-@media (max-width:620px){.kpis{grid-template-columns:1fr 1fr}.destino{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.kpis{grid-template-columns:1fr 1fr}.destino,.origem{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -196,6 +204,7 @@ tr.zero td{color:var(--suave)}
                 <label class="campo"><span>Peso (kg)</span><input id="eKg" inputmode="decimal"></label>
                 <label class="campo"><span>Nota fiscal</span><input id="eDoc"></label>
               </div>
+              <label class="check"><input type="checkbox" id="eExterna">Compra externa, sem contrato (o sistema gera CVI-EXT com numeração própria)</label>
               <div class="dica">Digite sacas ou kg: o outro campo é calculado. O sistema grava o peso em kg.</div>
               <label class="campo"><span>Observação</span><textarea id="eObs" rows="2"></textarea></label>
               <button class="btnPrincipal" type="submit">Registrar entrada</button>
@@ -222,7 +231,8 @@ tr.zero td{color:var(--suave)}
           <div class="subs">
             <button class="sub" data-painel="pReceb" aria-selected="true">Recebimento de carga</button>
             <button class="sub" data-painel="pTransf" aria-selected="false">Transferência de café verde</button>
-            <button class="sub" disabled title="Chega na Etapa 2">Torra (Etapa 2)</button>
+            <button class="sub" data-painel="pTorra" aria-selected="false">Torra</button>
+            <button class="sub" data-painel="pTorrado" aria-selected="false">Café torrado</button>
             <button class="sub" data-painel="pEmp" aria-selected="false">Empacotamento</button>
             <button class="sub" data-painel="pExp" aria-selected="false">Expedição</button>
           </div>
@@ -258,13 +268,57 @@ tr.zero td{color:var(--suave)}
               <button class="btnPrincipal" type="submit">Registrar transferência</button>
             </form>
           </div>
+          <div class="painel oculto" id="pTorra">
+            <form class="form" id="fTorra" novalidate>
+              <div class="subtitulo">Café verde que entrou no torrador</div>
+              <div id="toOrigens" style="display:grid;gap:10px"></div>
+              <button class="btnSec" type="button" id="toMais" style="justify-self:start">+ Adicionar origem</button>
+              <div class="linha">
+                <label class="campo"><span>Produto torrado</span><select id="toLinha">
+                  <option value="TRD">Tradicional</option><option value="EXF">Extraforte</option><option value="PRM">Premium</option><option value="TGR">Grão</option></select></label>
+                <label class="campo"><span>Peso de saída (balança)</span><input id="toSaida" inputmode="decimal"></label>
+                <label class="campo"><span>Vai para</span><input id="toDestino" disabled></label>
+              </div>
+              <div class="totalEnvio" id="toResumo"></div>
+              <div class="dica">Silos saem pelo lote de baixo primeiro. Em bags e sacaria, escolha o lote usado. Grão vai para o silo quadrado; as demais linhas, para o redondo.</div>
+              <label class="campo"><span>Observação</span><textarea id="toObs" rows="2"></textarea></label>
+              <button class="btnPrincipal" type="submit">Registrar torra</button>
+            </form>
+            <hr class="divisoria">
+            <div class="subtitulo" style="margin-bottom:10px">Últimas torras</div>
+            <div class="cartao tabela"><table>
+              <thead><tr><th>Torra</th><th>Hora</th><th>Produto</th><th>Lote</th><th>Origem</th><th class="num">Entrada</th><th class="num">Saída</th><th class="num">Perda</th></tr></thead>
+              <tbody id="tabTorras"></tbody>
+            </table></div>
+          </div>
+          <div class="painel oculto" id="pTorrado">
+            <form class="form" id="fMover" novalidate>
+              <div class="subtitulo">Transferir entre silos de torrado</div>
+              <div class="linha">
+                <label class="campo"><span>De</span><select id="mvOrigem"></select></label>
+                <label class="campo"><span>Para</span><select id="mvDestino"></select></label>
+              </div>
+              <div class="campo"><span>Lotes que vão (sem balança, o lote vai inteiro)</span><div class="checks" id="mvLotes"></div></div>
+              <label class="campo"><span>Observação</span><input id="mvObs"></label>
+              <button class="btnPrincipal" type="submit">Registrar transferência</button>
+            </form>
+            <hr class="divisoria">
+            <form class="form" id="fEsvaziar" novalidate>
+              <div class="subtitulo">Silo esvaziado para moagem e empacotamento</div>
+              <label class="campo"><span>Silo</span><select id="evSilo"></select></label>
+              <div class="dica" id="evInfo"></div>
+              <div class="dica">Registre quando o silo ficar vazio de fato. É esse registro que baixa o torrado do estoque e permite medir o rendimento da moagem e do empacotamento.</div>
+              <label class="campo"><span>Observação</span><input id="evObs"></label>
+              <button class="btnPrincipal" type="submit">Registrar silo vazio</button>
+            </form>
+          </div>
           <div class="painel oculto" id="pEmp">
             <form class="form" id="fEmp" novalidate>
               <label class="campo"><span>Produto</span><select id="pSku"></select></label>
               <div class="linha">
                 <label class="campo"><span>Fardos</span><input id="pFardos" inputmode="numeric"></label>
                 <label class="campo"><span>Pacotes avulsos</span><input id="pAvulsos" inputmode="numeric"></label>
-                <label class="campo"><span>Lote de produção (opcional)</span><input id="pLote" autocomplete="off"></label>
+                <label class="campo"><span>Lote de produção</span><input id="pLote" list="dlLotes" autocomplete="off"><datalist id="dlLotes"></datalist></label>
               </div>
               <div class="totalEnvio" id="pResumo"></div>
               <label class="campo"><span>Observação</span><textarea id="pObs" rows="2"></textarea></label>
@@ -355,12 +409,14 @@ const KG_TORRADO_POR_TORRA = 205; // aproximado, só para o desenho do repouso
 const LINHAS = { TRD: 'Tradicional', EXF: 'Extraforte', PRM: 'Premium', TGR: 'Grão' };
 const LINHAS_CURTO = { TRD: 'Trad.', EXF: 'Extra', PRM: 'Prem.', TGR: 'Grão' };
 const NOMES_TIPO = { ENTRADA: 'Entrada', CARGA: 'Carga', RECEBIMENTO: 'Recebimento', TRANSFERENCIA: 'Transferência', SAIDA: 'Saída',
-  AJUSTE: 'Ajuste', ESTORNO: 'Estorno', EMPACOTAMENTO: 'Empacotamento', EXPEDICAO: 'Expedição' };
+  AJUSTE: 'Ajuste', ESTORNO: 'Estorno', EMPACOTAMENTO: 'Empacotamento', EXPEDICAO: 'Expedição',
+  TORRA: 'Torra', TRANSF_TORRADO: 'Transf. torrado', CONSUMO: 'Moagem' };
+const CAP_TORRADOR = 240;
 /* ============================ */
 
 let token = sessionStorage.getItem('tk');
 let cad = { produtos: [], skus: [], locais: [], proprietarios: [] };
-let saldos = [], cargas = [];
+let saldos = [], cargas = [], torras = [], movsCache = [];
 let perfil = 'CONSULTA';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -437,7 +493,7 @@ function sair(msg) {
 /* ---------- Carga de dados ---------- */
 async function carregar() {
   const d = await api('painel', { limite: 40 });
-  cad = d.cadastros; saldos = d.saldos; cargas = d.cargas || [];
+  cad = d.cadastros; saldos = d.saldos; cargas = d.cargas || []; torras = d.torras || []; movsCache = d.movimentos || [];
   desenharKpis(); $('planta').innerHTML = planta();
   desenharProdutos(); desenharContratos(); desenharAcabado(); desenharCargas(); desenharMovimentos(d.movimentos);
   prepararForms();
@@ -548,7 +604,7 @@ function planta() {
       <rect x="${r.cx - 45}" y="${topo}" width="90" height="${r.y1 - topo + 2}" fill="var(--torrado)" clip-path="url(#c${r.c})"/>
       <path d="${r.forma}" fill="none" stroke="var(--torra)" stroke-width="2.5"/>
       ${T(r.cx, 268, r.nome, { w: 600 })}${T(r.cx, 290, n0(kg) + ' kg', { f: FC, s: 20, w: 700 })}
-      ${T(r.cx, 308, r.sub || '~' + l.cap_torras + ' torras', cinza)}`;
+      ${T(r.cx, 308, [...new Set(doLocal(r.c).map(s => LINHAS_CURTO[s.produto] || s.produto))].join(' + ') || r.sub || '~' + l.cap_torras + ' torras', cinza)}`;
   });
   svg += `<path d="M1134 170H1156" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)"/>
     <path d="M1212 170H1226" stroke="var(--suave)" stroke-width="1.6" marker-end="url(#seta)" stroke-dasharray="4 3"/>
@@ -618,7 +674,7 @@ function desenharMovimentos(m) {
   $('movs').innerHTML = m.length ? m.map(x => {
     const k = skuInfo(x.produto);
     const lote = x.lote_destino && x.lote_destino !== x.lote ? esc(x.lote) + ' → ' + esc(x.lote_destino) : esc(x.lote);
-    const qtd = k ? fmtFardos(k, Number(x.unidades) || pacotesDeKg(x.produto, x.kg)) : sc(x.kg) + ' sc';
+    const qtd = k ? fmtFardos(k, Number(x.unidades) || pacotesDeKg(x.produto, x.kg)) : LINHAS[x.produto] ? 'torrado' : sc(x.kg) + ' sc';
     return `<tr class="${x.estornado ? 'riscado' : ''}" title="${esc(x.observacao)}">
     <td>${esc(x.id)}</td><td>${esc(x.data_hora)}</td><td><span class="etiqueta ${esc(x.tipo)}">${esc(NOMES_TIPO[x.tipo] || x.tipo)}</span></td>
     <td>${esc(x.produto)}</td><td>${lote}</td><td>${esc(nomeLocal(x.origem))}</td><td>${esc(nomeLocal(x.destino))}</td>
@@ -681,7 +737,7 @@ function prepararForms() {
   const prods = cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
   const props = cad.proprietarios.map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join('');
   setOpts('eProduto', prods); setOpts('eProprietario', props);
-  setOpts('aProduto', prods); setOpts('aProp', props);
+  $('aProduto').dataset.modo = ''; setOpts('aProp', props);
 
   setOpts('sContrato', doTipo(['ARMAZEM']).map(s => `<option value="${esc(s.lote)}|${esc(s.produto)}">${esc(s.lote)} · ${esc(s.produto)} · ${sc(s.kg)} sc</option>`).join(''), 'Nenhum contrato com saldo');
   atualizarSaida();
@@ -692,6 +748,19 @@ function prepararForms() {
   setOpts('tOrigem', locaisVerdes().filter(l => doLocal(l.codigo).length).map(l => `<option value="${esc(l.codigo)}">${esc(rotuloSilo(l))}</option>`).join(''), 'Nenhum local com estoque');
   atualizarTransf();
 
+  $('toOrigens').innerHTML = ''; linhaOrigem(); atualizarTorra();
+  $('tabTorras').innerHTML = torras.length ? torras.map(t => `<tr class="${t.status === 'ESTORNADA' ? 'riscado' : ''}">
+    <td>${esc(t.torra)}</td><td>${esc(t.data)}</td><td>${esc(LINHAS[t.linha] || t.linha)}</td><td>${esc(t.lote)}</td>
+    <td style="white-space:normal;max-width:260px">${esc(t.origens)}</td><td class="num">${n1(t.entrada)}</td><td class="num">${n1(t.saida)}</td><td class="num">${n1(t.perda)}%</td></tr>`).join('')
+    : '<tr><td colspan="8" class="vazio">Nenhuma torra registrada.</td></tr>';
+  const silosTorrado = cod => cad.locais.filter(l => cod.includes(l.codigo));
+  const rotTorrado = l => { const kg = soma(doLocal(l.codigo)); return `${l.nome} · ${kg ? n0(kg) + ' kg' : 'vazio'}`; };
+  setOpts('mvOrigem', silosTorrado(['RED', 'RPQ', 'RGR']).filter(l => doLocal(l.codigo).length).map(l => `<option value="${l.codigo}">${esc(rotTorrado(l))}</option>`).join(''), 'Nenhum silo com torrado');
+  atualizarMover();
+  setOpts('evSilo', silosTorrado(['RQD', 'RPQ', 'RGR']).filter(l => doLocal(l.codigo).length).map(l => `<option value="${l.codigo}">${esc(rotTorrado(l))}</option>`).join(''), 'Nenhum silo com torrado');
+  atualizarEsvaziar();
+  const lotesPrd = [...new Set([...doTipo(['REPOUSO']).map(s => s.lote), ...torras.filter(t => t.status !== 'ESTORNADA').map(t => t.lote)])].filter(Boolean);
+  $('dlLotes').innerHTML = lotesPrd.map(l => `<option value="${esc(l)}">`).join('');
   setOpts('pSku', optsSkus());
   setOpts('xSku', optsSkus(k => doLocal('PA').some(s => s.produto === k.codigo), k => `${k.nome} · ${fmtFardos(k, pacotesDeKg(k.codigo, soma(doLocal('PA').filter(s => s.produto === k.codigo))))}`), 'Sem produto acabado em estoque');
   atualizarExp();
@@ -702,15 +771,20 @@ function prepararForms() {
 }
 
 /* ---------- Armazém: entrada ---------- */
+$('eExterna').addEventListener('change', () => {
+  const ext = $('eExterna').checked;
+  $('eContrato').disabled = ext; $('eContrato').value = ext ? 'CVI-EXT' : '';
+});
 $('fEntrada').addEventListener('submit', ev => {
   ev.preventDefault();
-  const contrato = $('eContrato').value.trim().toUpperCase();
-  if (!contrato) return aviso('Informe o número do contrato.', true);
-  if (!/^CVI-\d+$/.test(contrato) && !confirm(`"${contrato}" não segue o padrão CVI-0000. Registrar mesmo assim?`)) return;
+  const contrato = $('eExterna').checked ? 'CVI-EXT' : $('eContrato').value.trim().toUpperCase();
+  if (!contrato) return aviso('Informe o número do contrato ou marque compra externa.', true);
+  if (contrato === 'CVI-EXT' && !$('eExterna').checked) return aviso('Para compra externa, marque a opção "Compra externa".', true);
+  if (contrato !== 'CVI-EXT' && !/^CVI-\d+$/.test(contrato) && !confirm(`"${contrato}" não segue o padrão CVI-0000. Registrar mesmo assim?`)) return;
   enviar(ev.submitter, 'registrarMovimento', {
     tipo: 'ENTRADA', destino: 'VIL', contrato, produto: $('eProduto').value, proprietario: $('eProprietario').value,
     kg: num($('eKg').value), documento: $('eDoc').value, observacao: $('eObs').value
-  }, r => `Entrada ${r.id} registrada no contrato ${r.lote}.`, ['eContrato', 'eSacas', 'eKg', 'eDoc', 'eObs']);
+  }, r => `Entrada ${r.id} registrada no contrato ${r.lote}.`, ['eContrato', 'eSacas', 'eKg', 'eDoc', 'eObs']).then(() => { $('eExterna').checked = false; $('eContrato').disabled = false; });
 });
 
 /* ---------- Armazém: saída ---------- */
@@ -804,6 +878,88 @@ $('fTransf').addEventListener('submit', ev => {
   }, r => `Transferência registrada${r.ids.length > 1 ? ' em ' + r.ids.length + ' lotes (' + r.lote + ')' : ' do lote ' + (r.lote || 'sem lote')}.`, ['tKg', 'tSacas', 'tUn', 'tObs']);
 });
 
+/* ---------- Torrefação: torra ---------- */
+function linhaOrigem() {
+  const div = document.createElement('div'); div.className = 'origem';
+  div.innerHTML = `<label class="campo"><span>De onde</span><select class="oLocal"></select></label>
+    <label class="campo"><span>Café verde</span><select class="oProd"></select></label>
+    <label class="campo"><span>Lote</span><select class="oLote"></select></label>
+    <label class="campo"><span>Peso (kg)</span><input class="oKg" inputmode="decimal"></label>
+    <button type="button" class="btnX" aria-label="Remover origem">×</button>`;
+  const L = div.querySelector('.oLocal'), P = div.querySelector('.oProd'), Lo = div.querySelector('.oLote');
+  L.innerHTML = locaisVerdes().filter(l => doLocal(l.codigo).length).map(l => `<option value="${esc(l.codigo)}">${esc(rotuloSilo(l))}</option>`).join('') || '<option value="">Sem café verde</option>';
+  const atual = () => {
+    const itens = doLocal(L.value);
+    const pares = [...new Map(itens.map(s => [s.produto + '|' + s.proprietario, s])).values()];
+    const pv = P.value;
+    P.innerHTML = pares.map(s => `<option value="${esc(s.produto)}|${esc(s.proprietario)}">${esc(s.produto)} ${esc(prodInfo(s.produto)?.nome || '')}${s.proprietario !== 'CHP' ? ' · ' + esc(s.proprietario) : ''}</option>`).join('') || '<option value="">Sem estoque</option>';
+    if ([...P.options].some(o => o.value === pv)) P.value = pv;
+    const [prod, prop] = (P.value || '|').split('|');
+    const lotes = itens.filter(s => s.produto === prod && s.proprietario === prop);
+    Lo.innerHTML = local(L.value)?.tipo === 'SILO'
+      ? `<option value="">Automático: lote de baixo primeiro</option>`
+      : lotes.map(s => `<option value="${esc(s.lote)}">${esc(s.lote || 'Sem lote')} · ${n0(s.kg)} kg</option>`).join('');
+  };
+  L.addEventListener('change', atual); P.addEventListener('change', atual); atual();
+  div.querySelector('.oKg').addEventListener('input', atualizarTorra);
+  div.querySelector('.btnX').addEventListener('click', () => { if ($('toOrigens').children.length > 1) { div.remove(); atualizarTorra(); } });
+  $('toOrigens').appendChild(div);
+}
+$('toMais').addEventListener('click', linhaOrigem);
+const origensTorra = () => [...$('toOrigens').querySelectorAll('.origem')].map(d => {
+  const [produto, proprietario] = (d.querySelector('.oProd').value || '|').split('|');
+  return { local: d.querySelector('.oLocal').value, produto, proprietario, lote: d.querySelector('.oLote').value, kg: num(d.querySelector('.oKg').value) };
+}).filter(o => o.local && o.kg > 0);
+function atualizarTorra() {
+  const ent = origensTorra().reduce((a, o) => a + o.kg, 0), sai = num($('toSaida').value);
+  $('toDestino').value = $('toLinha').value === 'TGR' ? 'Silo quadrado (grão)' : 'Silo redondo';
+  const perda = ent && sai > 0 ? (1 - sai / ent) * 100 : NaN;
+  $('toResumo').className = 'totalEnvio' + (ent > CAP_TORRADOR * 1.05 ? ' erro' : '');
+  $('toResumo').textContent = ent ? `Entrada: ${n1(ent)} kg` + (ent > CAP_TORRADOR * 1.05 ? ` (acima dos ${CAP_TORRADOR} kg do torrador)` : '') +
+    (isNaN(perda) ? '' : ` · Saída: ${n1(sai)} kg · Perda: ${n1(perda)}%`) : '';
+}
+['toSaida', 'toLinha'].forEach(id => $(id).addEventListener(id === 'toLinha' ? 'change' : 'input', atualizarTorra));
+$('fTorra').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const origens = origensTorra(), ent = origens.reduce((a, o) => a + o.kg, 0), sai = num($('toSaida').value);
+  if (!origens.length) return aviso('Informe de onde saiu o café verde e o peso.', true);
+  if (!(sai > 0)) return aviso('Informe o peso de saída do torrador.', true);
+  const perda = (1 - sai / ent) * 100;
+  if ((perda < 8 || perda > 22) && !confirm(`Perda de ${n1(perda)}% está fora do comum (em geral 12 a 16%). Os pesos estão certos?`)) return;
+  enviar(ev.submitter, 'registrarTorra', { origens, kgSaida: sai, linha: $('toLinha').value, observacao: $('toObs').value, kg: ent },
+    r => `Torra ${r.torra} registrada no lote ${r.lote} (perda ${n1(r.perda)}%).`, ['toSaida', 'toObs', 'toResumo']);
+});
+
+/* ---------- Torrefação: café torrado ---------- */
+function atualizarMover() {
+  const o = $('mvOrigem').value;
+  const destinos = cad.locais.filter(l => ['RPQ', 'RGR'].includes(l.codigo) && l.codigo !== o);
+  setOpts('mvDestino', destinos.map(l => `<option value="${l.codigo}">${esc(l.nome)}${soma(doLocal(l.codigo)) ? ' · ' + n0(soma(doLocal(l.codigo))) + ' kg' : ' · vazio'}</option>`).join(''));
+  const itens = doLocal(o);
+  $('mvLotes').innerHTML = itens.length ? itens.map(s => `<label class="check"><input type="checkbox" value="${esc(s.lote)}" checked>${esc(s.lote)} · ${esc(LINHAS[s.produto] || s.produto)} · ${n0(s.kg)} kg</label>`).join('') : '<span class="dica">Sem torrado neste silo.</span>';
+}
+$('mvOrigem').addEventListener('change', atualizarMover);
+$('fMover').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const lotes = [...$('mvLotes').querySelectorAll('input:checked')].map(i => i.value);
+  if (!lotes.length) return aviso('Selecione ao menos um lote.', true);
+  enviar(ev.submitter, 'moverTorrado', { origem: $('mvOrigem').value, destino: $('mvDestino').value, lotes, observacao: $('mvObs').value, kg: 1 },
+    r => `Transferidos ${n0(r.kg)} kg de torrado.`, ['mvObs']);
+});
+function atualizarEsvaziar() {
+  const itens = doLocal($('evSilo').value);
+  $('evInfo').textContent = itens.length ? 'No sistema: ' + itens.map(s => `${s.lote} ${n0(s.kg)} kg`).join(', ') + '. Tudo será baixado como consumido.' : '';
+}
+$('evSilo').addEventListener('change', atualizarEsvaziar);
+$('fEsvaziar').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const kg = soma(doLocal($('evSilo').value));
+  if (!kg) return aviso('Nenhum silo com torrado.', true);
+  if (!confirm(`Confirma que o ${nomeLocal($('evSilo').value)} está vazio? ${n0(kg)} kg serão baixados como consumidos na moagem/empacotamento.`)) return;
+  enviar(ev.submitter, 'esvaziarSilo', { local: $('evSilo').value, observacao: $('evObs').value, kg },
+    r => `Silo esvaziado: ${n0(r.kg)} kg baixados.`, ['evObs']);
+});
+
 /* ---------- Torrefação: empacotamento e expedição ---------- */
 $('fEmp').addEventListener('submit', ev => {
   ev.preventDefault();
@@ -828,6 +984,11 @@ $('fExp').addEventListener('submit', ev => {
 
 /* ---------- Administração ---------- */
 function atualizarAjV() {
+  const torrado = local($('aLocal').value)?.tipo === 'REPOUSO';
+  const opts = torrado ? Object.entries(LINHAS).map(([c, n]) => `<option value="${c}">${n} (torrado)</option>`).join('')
+    : cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
+  if ($('aProduto').dataset.modo !== String(torrado)) { $('aProduto').innerHTML = opts; $('aProduto').dataset.modo = String(torrado); }
+  $('aKg').closest('.linha').querySelectorAll('.campo')[2].classList.toggle('oculto', torrado);
   const menos = $('aSentido').value === 'menos';
   $('aLoteSel').classList.toggle('oculto', !menos); $('aLoteTxt').classList.toggle('oculto', menos);
   if (menos) {
@@ -881,10 +1042,13 @@ async function enviar(botao, acao, dados, msgOk, limpar) {
   finally { botao.disabled = false; botao.textContent = txt; }
 }
 async function estornar(id) {
-  const motivo = prompt(`Motivo do estorno de ${id}:`);
+  const m = movsCache.find(x => x.id === id);
+  const juntos = m && m.grupo ? movsCache.filter(x => x.grupo === m.grupo && x.tipo !== 'ESTORNO').length : 1;
+  const aviso2 = m && m.grupo ? `\nAtenção: ${id} faz parte de um lançamento em grupo (${m.grupo}). Todos os lançamentos do grupo serão estornados juntos.` : '';
+  const motivo = prompt(`Motivo do estorno de ${id}:${aviso2}`);
   if (motivo === null) return;
   if (!motivo.trim()) return aviso('O estorno exige um motivo.', true);
-  try { const r = await api('estornar', { id, motivo }); aviso(`Estorno ${r.id} registrado.`); await carregar(); }
+  try { const r = await api('estornar', { id, motivo }); aviso(r.ids.length > 1 ? `${r.ids.length} lançamentos estornados.` : `Estorno ${r.id} registrado.`); await carregar(); }
   catch (e) { if (erroReal(e)) aviso(e.message, true); }
 }
 </script>
