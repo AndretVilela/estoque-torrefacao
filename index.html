@@ -101,6 +101,7 @@ tr.zero td{color:var(--suave)}
 .checks .check{justify-content:flex-start}
 .checks input[type=checkbox]{width:18px;height:18px;min-height:0;padding:0;flex:none}
 .checks{display:grid;gap:6px;background:#fff;border:1px solid var(--linha);border-radius:6px;padding:10px 12px}
+.alerta{background:#F6E7D8;border:1px solid #E2C2A3;color:#6E2A14;border-radius:8px;padding:10px 14px;font-size:14px}
 .subtitulo{font-family:var(--num);font-weight:600;font-size:18px;margin:6px 0 0}
 .divisoria{border:0;border-top:1px solid var(--linha);margin:26px 0 18px}
 .TORRA{background:#EADFD4;color:#4A2C1D}.TRANSF_TORRADO{background:#E3E0D5;color:#403B2C}.CONSUMO{background:#F1D9CC;color:#6E2A14}
@@ -269,18 +270,25 @@ tr.zero td{color:var(--suave)}
             </form>
           </div>
           <div class="painel oculto" id="pTorra">
+            <div class="subtitulo" style="margin-bottom:8px">Lotes em produção hoje</div>
+            <div class="cartao tabela" style="max-width:760px;margin-bottom:24px"><table>
+              <thead><tr><th>Produto</th><th>Lote</th><th class="num">Torras</th><th class="num">Torrado</th><th></th></tr></thead>
+              <tbody id="tabLotesAbertos"></tbody>
+            </table></div>
             <form class="form" id="fTorra" novalidate>
               <div class="subtitulo">Café verde que entrou no torrador</div>
               <div id="toOrigens" style="display:grid;gap:10px"></div>
               <button class="btnSec" type="button" id="toMais" style="justify-self:start">+ Adicionar origem</button>
               <div class="linha">
                 <label class="campo"><span>Produto torrado</span><select id="toLinha">
-                  <option value="TRD">Tradicional</option><option value="EXF">Extraforte</option><option value="PRM">Premium</option><option value="TGR">Grão</option></select></label>
+                  <option value="TRD">Tradicional (também usado no Premium)</option><option value="EXF">Extraforte</option><option value="TGR">Grão</option></select></label>
                 <label class="campo"><span>Peso de saída (balança)</span><input id="toSaida" inputmode="decimal"></label>
                 <label class="campo"><span>Vai para</span><input id="toDestino" disabled></label>
               </div>
               <div class="totalEnvio" id="toResumo"></div>
-              <div class="dica">Silos saem pelo lote de baixo primeiro. Em bags e sacaria, escolha o lote usado. Grão vai para o silo quadrado; as demais linhas, para o redondo.</div>
+              <div class="dica" id="toLote"></div>
+              <div class="alerta oculto" id="toAlerta"></div>
+              <div class="dica">Silos saem pelo lote de baixo primeiro. Em bags e sacaria, escolha o lote usado. A receita é livre: o produto informado aqui define o lote. O lote fecha no fim do dia ou quando você encerrar a receita. Grão vai para o silo quadrado; as demais linhas, para o redondo.</div>
               <label class="campo"><span>Observação</span><textarea id="toObs" rows="2"></textarea></label>
               <button class="btnPrincipal" type="submit">Registrar torra</button>
             </form>
@@ -407,6 +415,7 @@ const CONFIG = {
 const KG_SACA = 60;
 const KG_TORRADO_POR_TORRA = 205; // aproximado, só para o desenho do repouso
 const LINHAS = { TRD: 'Tradicional', EXF: 'Extraforte', PRM: 'Premium', TGR: 'Grão' };
+const LINHAS_TORRA = { TRD: 'Tradicional', EXF: 'Extraforte', TGR: 'Grão' }; // Premium = Tradicional com outra embalagem
 const LINHAS_CURTO = { TRD: 'Trad.', EXF: 'Extra', PRM: 'Prem.', TGR: 'Grão' };
 const NOMES_TIPO = { ENTRADA: 'Entrada', CARGA: 'Carga', RECEBIMENTO: 'Recebimento', TRANSFERENCIA: 'Transferência', SAIDA: 'Saída',
   AJUSTE: 'Ajuste', ESTORNO: 'Estorno', EMPACOTAMENTO: 'Empacotamento', EXPEDICAO: 'Expedição',
@@ -416,7 +425,7 @@ const CAP_TORRADOR = 240;
 
 let token = sessionStorage.getItem('tk');
 let cad = { produtos: [], skus: [], locais: [], proprietarios: [] };
-let saldos = [], cargas = [], torras = [], movsCache = [];
+let saldos = [], cargas = [], torras = [], movsCache = [], lotesAbertos = [];
 let perfil = 'CONSULTA';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -493,7 +502,7 @@ function sair(msg) {
 /* ---------- Carga de dados ---------- */
 async function carregar() {
   const d = await api('painel', { limite: 40 });
-  cad = d.cadastros; saldos = d.saldos; cargas = d.cargas || []; torras = d.torras || []; movsCache = d.movimentos || [];
+  cad = d.cadastros; saldos = d.saldos; cargas = d.cargas || []; torras = d.torras || []; movsCache = d.movimentos || []; lotesAbertos = d.lotesAbertos || [];
   desenharKpis(); $('planta').innerHTML = planta();
   desenharProdutos(); desenharContratos(); desenharAcabado(); desenharCargas(); desenharMovimentos(d.movimentos);
   prepararForms();
@@ -749,6 +758,11 @@ function prepararForms() {
   atualizarTransf();
 
   $('toOrigens').innerHTML = ''; linhaOrigem(); atualizarTorra();
+  $('tabLotesAbertos').innerHTML = lotesAbertos.length ? lotesAbertos.map(l => `<tr>
+    <td>${esc(LINHAS[l.linha] || l.linha)}${l.proprietario !== 'CHP' ? ' · ' + esc(l.proprietario) : ''}</td><td><strong>${esc(l.lote)}</strong></td>
+    <td class="num">${l.torras}</td><td class="num">${n0(l.kg)} kg</td>
+    <td>${perfil !== 'CONSULTA' ? `<button class="btnMini" onclick="encerrarLote('${esc(l.linha)}','${esc(l.proprietario)}','${esc(l.lote)}',${l.torras})">Encerrar receita</button>` : ''}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="vazio">Nenhum lote aberto hoje. A primeira torra de cada produto abre o lote.</td></tr>';
   $('tabTorras').innerHTML = torras.length ? torras.map(t => `<tr class="${t.status === 'ESTORNADA' ? 'riscado' : ''}">
     <td>${esc(t.torra)}</td><td>${esc(t.data)}</td><td>${esc(LINHAS[t.linha] || t.linha)}</td><td>${esc(t.lote)}</td>
     <td style="white-space:normal;max-width:260px">${esc(t.origens)}</td><td class="num">${n1(t.entrada)}</td><td class="num">${n1(t.saida)}</td><td class="num">${n1(t.perda)}%</td></tr>`).join('')
@@ -906,13 +920,29 @@ function linhaOrigem() {
   $('toOrigens').appendChild(div);
 }
 $('toMais').addEventListener('click', linhaOrigem);
+async function encerrarLote(linha, proprietario, lote, n) {
+  if (!confirm(`Encerrar a receita do lote ${lote} (${n} ${n === 1 ? 'torra' : 'torras'})?\nA próxima torra de ${LINHAS[linha]} abre um lote novo. Antes de torrar a receita nova, transfira o redondo para o pequeno ou o grande.`)) return;
+  try { const r = await api('encerrarLote', { linha, proprietario }); aviso(`Lote ${r.lote} encerrado.`); await carregar(); }
+  catch (e) { if (erroReal(e)) aviso(e.message, true); }
+}
 const origensTorra = () => [...$('toOrigens').querySelectorAll('.origem')].map(d => {
   const [produto, proprietario] = (d.querySelector('.oProd').value || '|').split('|');
   return { local: d.querySelector('.oLocal').value, produto, proprietario, lote: d.querySelector('.oLote').value, kg: num(d.querySelector('.oKg').value) };
 }).filter(o => o.local && o.kg > 0);
 function atualizarTorra() {
+  const lin = $('toLinha').value;
+  $('toDestino').value = lin === 'TGR' ? 'Silo quadrado (grão)' : 'Silo redondo';
   const ent = origensTorra().reduce((a, o) => a + o.kg, 0), sai = num($('toSaida').value);
-  $('toDestino').value = $('toLinha').value === 'TGR' ? 'Silo quadrado (grão)' : 'Silo redondo';
+  const aberto = lotesAbertos.find(l => l.linha === lin && l.proprietario === 'CHP');
+  // O redondo não mistura receitas: avisa antes de o operador tentar registrar.
+  let alerta = '';
+  const noRedondo = doLocal('RED');
+  if (lin !== 'TGR' && noRedondo.length) {
+    const outro = noRedondo.find(s => s.produto !== lin || !aberto || s.lote !== aberto.lote);
+    if (outro) alerta = `O redondo tem ${n0(soma(noRedondo))} kg do lote ${outro.lote} (${LINHAS[outro.produto] || outro.produto}). Transfira para o pequeno ou o grande na aba Café torrado antes desta torra.`;
+  }
+  $('toAlerta').textContent = alerta; $('toAlerta').classList.toggle('oculto', !alerta);
+  $('toLote').textContent = aberto ? `Esta torra entra no lote ${aberto.lote} (${aberto.torras} ${aberto.torras === 1 ? 'torra' : 'torras'} até agora).` : `Esta torra abre um lote novo de ${LINHAS[$('toLinha').value]}.`;
   const perda = ent && sai > 0 ? (1 - sai / ent) * 100 : NaN;
   $('toResumo').className = 'totalEnvio' + (ent > CAP_TORRADOR * 1.05 ? ' erro' : '');
   $('toResumo').textContent = ent ? `Entrada: ${n1(ent)} kg` + (ent > CAP_TORRADOR * 1.05 ? ` (acima dos ${CAP_TORRADOR} kg do torrador)` : '') +
@@ -985,7 +1015,7 @@ $('fExp').addEventListener('submit', ev => {
 /* ---------- Administração ---------- */
 function atualizarAjV() {
   const torrado = local($('aLocal').value)?.tipo === 'REPOUSO';
-  const opts = torrado ? Object.entries(LINHAS).map(([c, n]) => `<option value="${c}">${n} (torrado)</option>`).join('')
+  const opts = torrado ? Object.entries(LINHAS_TORRA).map(([c, n]) => `<option value="${c}">${n} (torrado)</option>`).join('')
     : cad.produtos.map(p => `<option value="${esc(p.sigla)}">${esc(p.sigla)} ${esc(p.nome)}</option>`).join('');
   if ($('aProduto').dataset.modo !== String(torrado)) { $('aProduto').innerHTML = opts; $('aProduto').dataset.modo = String(torrado); }
   $('aKg').closest('.linha').querySelectorAll('.campo')[2].classList.toggle('oculto', torrado);
