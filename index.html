@@ -104,6 +104,12 @@ tr.zero td{color:var(--suave)}
 .alerta{background:#F6E7D8;border:1px solid #E2C2A3;color:#6E2A14;border-radius:8px;padding:10px 14px;font-size:14px}
 .subtitulo{font-family:var(--num);font-weight:600;font-size:18px;margin:6px 0 0}
 .divisoria{border:0;border-top:1px solid var(--linha);margin:26px 0 18px}
+.CORRECAO{background:#E6DCEF;color:#45285E}
+.siloCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;max-width:900px}
+.siloCard{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:14px;display:grid;gap:6px}
+.siloCard.cheio{border-left:5px solid var(--alerta)}
+.siloCard strong{font-family:var(--num);font-size:20px}
+.tagCheio{display:inline-block;background:var(--alerta);color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:2px}
 .TORRA{background:#EADFD4;color:#4A2C1D}.TRANSF_TORRADO{background:#E3E0D5;color:#403B2C}.CONSUMO{background:#F1D9CC;color:#6E2A14}
 .btnSec{background:#fff;border:1px dashed var(--suave);border-radius:6px;padding:8px 14px;cursor:pointer}
 
@@ -232,6 +238,7 @@ tr.zero td{color:var(--suave)}
           <div class="subs">
             <button class="sub" data-painel="pReceb" aria-selected="true">Recebimento de carga</button>
             <button class="sub" data-painel="pTransf" aria-selected="false">Transferência de café verde</button>
+            <button class="sub" data-painel="pSilos" aria-selected="false">Silos cheios</button>
             <button class="sub" data-painel="pTorra" aria-selected="false">Torra</button>
             <button class="sub" data-painel="pTorrado" aria-selected="false">Café torrado</button>
             <button class="sub" data-painel="pEmp" aria-selected="false">Empacotamento</button>
@@ -268,6 +275,13 @@ tr.zero td{color:var(--suave)}
               <label class="campo"><span>Observação</span><textarea id="tObs" rows="2"></textarea></label>
               <button class="btnPrincipal" type="submit">Registrar transferência</button>
             </form>
+          </div>
+          <div class="painel oculto" id="pSilos">
+            <div class="form">
+              <div class="subtitulo">Silos de café verde</div>
+              <div class="dica">A capacidade de referência é 8.000 kg, mas cafés de densidade diferente enchem o silo com menos peso. Marque o silo como cheio quando o volume acabar. A marcação sai sozinha na próxima saída do silo (torra ou transferência).</div>
+              <div class="siloCards" id="siloCards"></div>
+            </div>
           </div>
           <div class="painel oculto" id="pTorra">
             <div class="subtitulo" style="margin-bottom:8px">Lotes em produção hoje</div>
@@ -356,6 +370,25 @@ tr.zero td{color:var(--suave)}
           <div class="subs">
             <button class="sub" data-painel="pAjV" aria-selected="true">Ajuste de café verde / torrado</button>
             <button class="sub" data-painel="pAjA" aria-selected="false">Ajuste de produto acabado</button>
+            <button class="sub" data-painel="pCtr" aria-selected="false">Contratos do armazém</button>
+          </div>
+          <div class="painel oculto" id="pCtr">
+            <form class="form" id="fCtr" novalidate>
+              <label class="campo"><span>Contrato a corrigir</span><select id="cSel"></select></label>
+              <div class="dica" id="cInfo"></div>
+              <div class="linha">
+                <label class="campo"><span>Número do contrato</span><input id="cNum" autocomplete="off"></label>
+                <label class="campo"><span>Produto</span><select id="cProd"></select></label>
+                <label class="campo"><span>Proprietário</span><select id="cProp"></select></label>
+              </div>
+              <div class="linha">
+                <label class="campo"><span>Saldo correto (sacas de 60 kg)</span><input id="cSacas" inputmode="decimal"></label>
+                <label class="campo"><span>Saldo correto (kg)</span><input id="cKg" inputmode="decimal"></label>
+              </div>
+              <label class="campo"><span>Motivo (obrigatório)</span><textarea id="cObs" rows="2"></textarea></label>
+              <div class="dica">A correção vale para o saldo que ainda está no armazém. Cargas já enviadas continuam com o número antigo no histórico. O lançamento pode ser estornado como qualquer outro.</div>
+              <button class="btnPrincipal" type="submit">Salvar correção</button>
+            </form>
           </div>
           <div class="painel" id="pAjV">
             <form class="form" id="fAjV" novalidate>
@@ -419,7 +452,7 @@ const LINHAS_TORRA = { TRD: 'Tradicional', EXF: 'Extraforte', TGR: 'Grão' }; //
 const LINHAS_CURTO = { TRD: 'Trad.', EXF: 'Extra', PRM: 'Prem.', TGR: 'Grão' };
 const NOMES_TIPO = { ENTRADA: 'Entrada', CARGA: 'Carga', RECEBIMENTO: 'Recebimento', TRANSFERENCIA: 'Transferência', SAIDA: 'Saída',
   AJUSTE: 'Ajuste', ESTORNO: 'Estorno', EMPACOTAMENTO: 'Empacotamento', EXPEDICAO: 'Expedição',
-  TORRA: 'Torra', TRANSF_TORRADO: 'Transf. torrado', CONSUMO: 'Moagem' };
+  CORRECAO: 'Correção', TORRA: 'Torra', TRANSF_TORRADO: 'Transf. torrado', CONSUMO: 'Moagem' };
 const CAP_TORRADOR = 240;
 /* ============================ */
 
@@ -565,16 +598,17 @@ function planta() {
   cad.locais.filter(l => l.tipo === 'SILO').forEach((l, i) => {
     const cx = 425 + i * 85, itens = doLocal(l.codigo), kg = soma(itens), p = prodInfo(itens[0]?.produto);
     const cap = p ? (p.tipo_silo === 'GRAO' ? l.cap_grao_kg : l.cap_escolha_kg) : l.cap_escolha_kg;
-    const pct = cap ? Math.min(kg / cap, 1) : 0, topo = 70 + (1 - pct) * 175;
+    const real = cap ? kg / cap : 0, pct = l.cheio ? 1 : Math.min(real, 1), topo = 70 + (1 - pct) * 175;
+    const rotPct = l.cheio ? 'CHEIO' : Math.round(real * 100) + '%';
     const forma = `M${cx - 32} 70H${cx + 32}V210L${cx + 8} 245H${cx - 8}L${cx - 32} 210Z`;
     const lotes = new Set(itens.map(s => s.lote)).size;
     svg += `<clipPath id="c${l.codigo}"><path d="${forma}"/></clipPath>
       <rect x="${cx - 40}" y="${topo}" width="80" height="${250 - topo}" fill="${p ? corProd(p.sigla) : 'none'}" clip-path="url(#c${l.codigo})"/>
-      <path d="${forma}" fill="none" stroke="var(--torra)" stroke-width="2.5"/>
-      ${T(cx, 140, Math.round(pct * 100) + '%', { f: FC, s: 20, w: 700, c: pct > .45 ? '#fff' : 'var(--tinta)' })}
+      <path d="${forma}" fill="none" stroke="${l.cheio || real > 1 ? 'var(--alerta)' : 'var(--torra)'}" stroke-width="${l.cheio || real > 1 ? 3.5 : 2.5}"/>
+      ${T(cx, 140, rotPct, { f: FC, s: l.cheio ? 17 : 20, w: 700, c: pct > .45 ? '#fff' : 'var(--tinta)' })}
       ${T(cx, 268, l.nome, { w: 600 })}
       ${T(cx, 290, kg ? sc(kg) + ' sc' : 'Vazio', { f: FC, s: 20, w: 700 })}
-      ${T(cx, 308, p ? p.sigla + ' · ' + n0(kg) + ' kg' : 'cap. 6 a 7 t', cinza)}
+      ${T(cx, 308, p ? p.sigla + ' · ' + n0(kg) + ' kg' : 'cap. 8 t', cinza)}
       ${lotes > 1 ? T(cx, 324, lotes + ' lotes', cinza) : ''}`;
   });
 
@@ -738,7 +772,7 @@ function optsSkus(filtro = () => true, rotulo = k => k.nome) {
 function rotuloSilo(l) {
   if (l.tipo !== 'SILO') return l.nome;
   const itens = doLocal(l.codigo), kg = soma(itens);
-  return kg ? `${l.nome} · ${itens[0].produto} ${n0(kg)} kg` : `${l.nome} · vazio`;
+  return (kg ? `${l.nome} · ${itens[0].produto} ${n0(kg)} kg` : `${l.nome} · vazio`) + (l.cheio ? ' · CHEIO' : '');
 }
 const locaisVerdes = () => cad.locais.filter(l => l.tipo === 'SILO' || l.tipo === 'PALLET');
 
@@ -782,6 +816,21 @@ function prepararForms() {
   setOpts('aLocal', cad.locais.filter(l => l.tipo !== 'ACABADO').map(l => `<option value="${esc(l.codigo)}">${esc(l.nome)}</option>`).join(''));
   setOpts('bSku', optsSkus());
   atualizarAjV(); atualizarAjA();
+
+  $('siloCards').innerHTML = cad.locais.filter(l => l.tipo === 'SILO').map(l => {
+    const itens = doLocal(l.codigo), kg = soma(itens);
+    return `<div class="siloCard ${l.cheio ? 'cheio' : ''}"><div>${esc(l.nome)}${l.cheio ? '<span class="tagCheio">CHEIO</span>' : ''}</div>
+      <strong>${kg ? n0(kg) + ' kg' : 'Vazio'}</strong>
+      <span class="dica">${kg ? esc(itens[0].produto) + ' · ' + sc(kg) + ' sc · ' + Math.round(kg / (l.cap_escolha_kg || 8000) * 100) + '% de 8 t' : ''}</span>
+      ${l.cheio && l.cheio_info ? `<span class="dica">${esc(l.cheio_info)}</span>` : ''}
+      ${perfil !== 'CONSULTA' ? (l.cheio ? `<button type="button" class="btnMini" onclick="marcarCheio('${l.codigo}',false)">Desmarcar cheio</button>`
+        : kg ? `<button type="button" class="btnMini" onclick="marcarCheio('${l.codigo}',true)">Marcar como cheio</button>` : '') : ''}</div>`;
+  }).join('');
+
+  setOpts('cProd', prods);
+  setOpts('cProp', cad.proprietarios.map(p => `<option value="${esc(p.codigo)}">${esc(p.nome)}</option>`).join(''));
+  setOpts('cSel', doTipo(['ARMAZEM']).map(s => `<option value="${esc(s.lote)}|${esc(s.produto)}">${esc(s.lote)} · ${esc(s.produto)} · ${sc(s.kg)} sc</option>`).join(''), 'Nenhum contrato com saldo');
+  preencherContrato();
 }
 
 /* ---------- Armazém: entrada ---------- */
@@ -853,7 +902,7 @@ $('rDistribuir').addEventListener('click', () => {
       const itens = doLocal(l.codigo);
       const outro = itens.some(s => s.produto !== c.produto || s.proprietario !== c.proprietario);
       const cap = p?.tipo_silo === 'GRAO' ? l.cap_grao_kg : l.cap_escolha_kg;
-      v = outro ? 0 : Math.min(Math.max(0, cap - soma(itens)), resta);
+      v = outro || l.cheio ? 0 : Math.min(Math.max(0, cap - soma(itens)), resta);
     } else v = resta;
     d.querySelector('.dKg').value = v > 0 ? campoNum(v) : '';
     resta -= v;
@@ -861,11 +910,22 @@ $('rDistribuir').addEventListener('click', () => {
   atualizarReceb();
   if (resta > 0.5) aviso(`Faltam ${n0(resta)} kg sem destino. Adicione outro silo, bags ou sacaria.`, true);
 });
+function alertaSilos(itens, produto) {
+  const p = prodInfo(produto), msgs = [];
+  itens.forEach(i => {
+    const l = local(i.destino); if (!l || l.tipo !== 'SILO') return;
+    const cap = p?.tipo_silo === 'GRAO' ? l.cap_grao_kg : l.cap_escolha_kg, tot = soma(doLocal(l.codigo)) + i.kg;
+    if (cap && tot > cap + 0.5) msgs.push(`${l.nome} vai ficar com ${n0(tot)} kg, acima dos ${n0(cap)} kg de referência.`);
+    if (l.cheio) msgs.push(`${l.nome} está marcado como cheio.`);
+  });
+  return msgs.length ? confirm(msgs.join('\n') + '\n\nRegistrar mesmo assim?') : true;
+}
 $('fReceb').addEventListener('submit', ev => {
   ev.preventDefault();
   const c = cargaSel(); if (!c) return aviso('Selecione uma carga.', true);
   const itens = [...$('rDestinos').querySelectorAll('.destino')].map(d => ({ destino: d.querySelector('.dDest').value, kg: num(d.querySelector('.dKg').value), unidades: num(d.querySelector('.dUn').value) || '' })).filter(i => i.kg > 0);
   if (!itens.length) return aviso('Informe o peso de pelo menos um destino.', true);
+  if (!alertaSilos(itens, c.produto)) return;
   enviar(ev.submitter, 'receberCarga', { carga: c.carga, itens, observacao: $('rObs').value },
     r => `Carga recebida. Lote ${r.lote} gerado (${sc(r.kg)} sacas, contrato ${r.contrato}).`, ['rObs']);
 });
@@ -886,6 +946,7 @@ $('fTransf').addEventListener('submit', ev => {
   ev.preventDefault();
   const [produto, proprietario] = ($('tProduto').value || '|').split('|');
   if (!produto) return aviso('Selecione um local de origem com estoque.', true);
+  if (!alertaSilos([{ destino: $('tDestino').value, kg: num($('tKg').value) || 0 }], produto)) return;
   enviar(ev.submitter, 'registrarMovimento', {
     tipo: 'TRANSFERENCIA', origem: $('tOrigem').value, destino: $('tDestino').value, produto, proprietario,
     lote: $('tLote').value, kg: num($('tKg').value), unidades: num($('tUn').value) || '', observacao: $('tObs').value
@@ -1058,6 +1119,36 @@ $('fAjA').addEventListener('submit', ev => {
     r => `Ajuste ${r.id} registrado.`, ['bFardos', 'bAvulsos', 'bObs', 'bLoteTxt']);
 });
 
+/* ---------- Silos cheios ---------- */
+async function marcarCheio(codigo, cheio) {
+  const l = local(codigo);
+  if (cheio && !confirm(`Marcar ${l.nome} como cheio com ${n0(soma(doLocal(codigo)))} kg?`)) return;
+  try { await api('marcarCheio', { local: codigo, cheio }); aviso(`${l.nome} ${cheio ? 'marcado como cheio' : 'desmarcado'}.`); await carregar(); }
+  catch (e) { if (erroReal(e)) aviso(e.message, true); }
+}
+
+/* ---------- Administração: contratos ---------- */
+const contratoCorr = () => { const [lote, produto] = ($('cSel').value || '|').split('|'); return saldos.find(s => s.local === 'VIL' && s.lote === lote && s.produto === produto); };
+function preencherContrato() {
+  const c = contratoCorr();
+  $('cInfo').textContent = c ? `Saldo atual: ${sc(c.kg)} sacas (${n1(c.kg)} kg) de ${prodInfo(c.produto)?.nome || c.produto}.` : '';
+  $('cNum').value = c ? c.lote : ''; if (c) { $('cProd').value = c.produto; $('cProp').value = c.proprietario; }
+  $('cKg').value = c ? campoNum(c.kg) : ''; $('cSacas').value = c ? campoNum(c.kg / KG_SACA) : '';
+}
+$('cSel').addEventListener('change', preencherContrato);
+ligarSacas('cKg', 'cSacas');
+$('fCtr').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const c = contratoCorr(); if (!c) return aviso('Selecione um contrato.', true);
+  if (!$('cObs').value.trim()) return aviso('Escreva o motivo da correção.', true);
+  const novo = $('cNum').value.trim().toUpperCase();
+  if (!novo) return aviso('Informe o número do contrato.', true);
+  if (!confirm(`Confirmar correção do contrato ${c.lote}?`)) return;
+  enviar(ev.submitter, 'editarContrato', { contrato: c.lote, produto: c.produto, novoContrato: novo, novoProduto: $('cProd').value,
+    novoProprietario: $('cProp').value, novoKg: num($('cKg').value), motivo: $('cObs').value, kg: num($('cKg').value) },
+    r => `Contrato ${r.contrato} corrigido: ${sc(r.kg)} sacas.`, ['cObs']);
+});
+
 /* ---------- Envio genérico ---------- */
 async function enviar(botao, acao, dados, msgOk, limpar) {
   const qtds = dados.itens ? dados.itens.map(i => i.kg) : [dados.kg ?? dados.pacotes];
@@ -1065,7 +1156,7 @@ async function enviar(botao, acao, dados, msgOk, limpar) {
   const txt = botao.textContent; botao.disabled = true; botao.textContent = 'Registrando...';
   try {
     const r = await api(acao, dados);
-    aviso(msgOk(r));
+    aviso(msgOk(r) + (r && r.alertas && r.alertas.length ? ' Atenção: ' + r.alertas.join(' ') : ''), !!(r && r.alertas && r.alertas.length));
     limpar.forEach(id => { const el = $(id); if ('value' in el) el.value = ''; else el.textContent = ''; });
     await carregar();
   } catch (e) { if (erroReal(e)) aviso(e.message, true); }
